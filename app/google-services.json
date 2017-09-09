@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "339057304383",
+    "firebase_url": "https://family-care-giver.firebaseio.com",
+    "project_id": "family-care-giver",
+    "storage_bucket": "family-care-giver.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339057304383:android:1c8a766f1da7c45d",
+        "android_client_info": {
+          "package_name": "com.msccs.hku.familycaregiver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339057304383-nrgeoi4ouu18j99i02bm58pt7odpbo5s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.msccs.hku.familycaregiver",
+            "certificate_hash": "0c28f6528db32ca87ab15c0df93fa352965adc1e"
+          }
+        },
+        {
+          "client_id": "339057304383-652s2bi7f9fo5fhkf4go6qtluvqvda18.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxo281aigH4DB4b-GVdWHhFofWq7zyWB8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339057304383-652s2bi7f9fo5fhkf4go6qtluvqvda18.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

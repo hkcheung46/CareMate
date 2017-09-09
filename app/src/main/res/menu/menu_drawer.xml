@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/toDo">
+        <menu>
+            <item
+                android:id="@+id/toDoListNavItem"
+                android:icon="@drawable/ic_assignment_black_24dp"
+                android:title="@string/toDoList" />
+        </menu>
+    </item>
+
+    <item android:title="@string/groups">
+        <menu>
+            <item
+                android:id="@+id/groupsNavItem"
+                android:icon="@drawable/ic_group_black_24dp"
+                android:title="@string/groups" />
+        </menu>
+    </item>
+
+    <item android:title="@string/settings">
+        <menu>
+            <item
+                android:id="@+id/settingsNavItem"
+                android:icon="@drawable/ic_settings_black_24dp"
+                android:title="@string/userSettings" />
+            <item
+                android:id="@+id/sign_out_menu"
+                android:icon="@drawable/ic_exit_to_app_black_24dp"
+                android:title="@string/logout" />
+        </menu>
+    </item>
+
+
+</menu>
