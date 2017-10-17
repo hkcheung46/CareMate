@@ -80,8 +80,6 @@ public class MainActivity extends BaseActivity implements ToDoListTabHostFragmen
                 AlertDialog alertDialog = alertDialogBuilder.create();
                 alertDialog.show();
             }
-
-
         }
     }
 

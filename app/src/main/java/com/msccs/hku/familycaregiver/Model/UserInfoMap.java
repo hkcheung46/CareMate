@@ -51,12 +51,15 @@ public class UserInfoMap {
     public boolean equals(Object object){
         //Handle the case it only map with phone number
         if (object instanceof String){
-            Log.d("equalCheck","Hello, i am running string comparision");
-            return (this.getTelNum().equals(((String)object).toString()) || (("+852"+this.getTelNum()).equals(((String)object).toString())));
+            return (this.getTelNum().equals(((String)object).toString()) || ((this.getTelNum()).equals(("+852"+(((String)object))))));
         }else{
-            Log.d("equalCheck","Hello, i am running infoMap comparision");
             //Handle the case it only map with UserInfoMap itself
             return (this.telNum.equals(((UserInfoMap)object).getTelNum()) && this.UID.equals(((UserInfoMap)object).getUID()));
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.displayName;
     }
 }

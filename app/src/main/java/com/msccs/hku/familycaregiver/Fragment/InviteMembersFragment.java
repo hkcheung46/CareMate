@@ -1,6 +1,5 @@
 package com.msccs.hku.familycaregiver.Fragment;
 
-
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -8,7 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.firebase.ui.auth.ui.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -29,16 +28,14 @@ import java.util.ArrayList;
 
 public class InviteMembersFragment extends Fragment {
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
 
     ListView mContactsList;
     Cursor cursor;
     String name, phoneNumber;
-    ArrayList<String> localStoreContacts;
+    ArrayList<String> localStoredContacts;
     ArrayList<UserInfoMap> firebaseStoredUserList;
-    ArrayAdapter<String> arrayAdapter;
-
-    /*************************************************************************************************************************************************************/
+    ArrayAdapter arrayAdapter;
 
     public InviteMembersFragment() {
 
@@ -47,55 +44,6 @@ public class InviteMembersFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        //After android 6.0 need to get the run time permission
-        EnableRuntimePermission();
-
-        //The piece of code following target to get the list of local contacts who are registered app user
-        //plan to do:
-
-        //This is the list of contacts from local
-        localStoreContacts = new ArrayList<String>();
-        GetContactsIntoArrayList();
-
-        firebaseStoredUserList = new ArrayList<UserInfoMap>();
-        //This section is to retrieve the firebase registered user info to local phone
-        FirebaseDatabase.getInstance().getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    long value = dataSnapshot.getChildrenCount();
-                    for (DataSnapshot userInfoMapSnapshot: dataSnapshot.getChildren()){
-                        UserInfoMap userInfo = userInfoMapSnapshot.getValue(UserInfoMap.class);
-                        //For debug only
-                        Log.d("info",userInfo.getTelNum());
-                        Log.d("info2",userInfo.getUID());
-                        Log.d("info3",userInfo.getDisplayName());
-
-
-
-                        firebaseStoredUserList.add(userInfo);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            }
-        );
-        Log.d("size1",firebaseStoredUserList.size()+"B");
-
-        firebaseStoredUserList.retainAll(localStoreContacts);
-        Log.d("size",firebaseStoredUserList.size()+"A");
-
-        arrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, localStoreContacts);
-        mContactsList.setAdapter(arrayAdapter);
-
     }
 
     @Override
@@ -107,16 +55,74 @@ public class InviteMembersFragment extends Fragment {
         return v;
     }
 
-    public void GetContactsIntoArrayList() {
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
+        localStoredContacts = new ArrayList<String>();
+        firebaseStoredUserList = new ArrayList<>();
+        arrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, firebaseStoredUserList);
+
+        //After android 6.0 need to get the run time permission
+        //Check does permission already granted
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            //Handle the case in which the users have replied not grant the read local contacts to the application, show the rationale and ask him to grant
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_CONTACTS)) {
+                Toast.makeText(getActivity(), "Please go to app settings to grant the READ CONTACTS PERMISSION", Toast.LENGTH_LONG).show();
+            } else {
+                //If user's have never answer grant the permission or not, display the dialog and ask for the requested permission
+                String[] perReqArray={Manifest.permission.READ_CONTACTS};
+                requestPermissions(perReqArray,MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+            }
+        }
+
+        //Check the permission one more time, if the get local contacts permission is already granted,fill in the localStoredList
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            //This is the list of contacts from local
+            getLocalContactsIntoArrayList();
+            getFirebaseUserListIntoArrayList();
+        }
+
+        mContactsList.setAdapter(arrayAdapter);
+    }
+
+
+    public void getLocalContactsIntoArrayList() {
+        localStoredContacts = new ArrayList<String>();
         cursor = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
-            name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            //name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
             phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-            //This line is to put the content into Array List, which affect the display
-            localStoreContacts.add(name);
+            //This line is to put the phone number into the array-list,which is used for compare with the FireBase list
+            localStoredContacts.add(phoneNumber);
         }
         cursor.close();
+    }
+
+    public void getFirebaseUserListIntoArrayList(){
+        //This section is to retrieve the firebase registered user info to local phone
+        FirebaseDatabase.getInstance().getReference("users").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot userInfoMapSnapshot : dataSnapshot.getChildren()) {
+                            UserInfoMap userInfo = userInfoMapSnapshot.getValue(UserInfoMap.class);
+
+                            //This line is for get rid of having user's own user account also put into the lists
+                            if (!userInfo.getTelNum().equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())){
+                                firebaseStoredUserList.add(new UserInfoMap(userInfo.getUID(), userInfo.getTelNum(), userInfo.getDisplayName()));
+                            }
+                        }
+                        firebaseStoredUserList.retainAll(localStoredContacts);
+                        arrayAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                }
+        );
     }
 
     @Override
@@ -125,24 +131,13 @@ public class InviteMembersFragment extends Fragment {
             case MY_PERMISSIONS_REQUEST_READ_CONTACTS:
                 if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getActivity(), "Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
+                    getLocalContactsIntoArrayList();
+                    getFirebaseUserListIntoArrayList();
                 } else {
                     Toast.makeText(getActivity(), "Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
                 }
                 break;
         }
     }
-
-
-    public void EnableRuntimePermission() {
-
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
-                getActivity(), Manifest.permission.READ_CONTACTS)) {
-            Toast.makeText(getActivity(), "CONTACTS permission allows us to Access CONTACTS app", Toast.LENGTH_LONG).show();
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{
-                    Manifest.permission.READ_CONTACTS}, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
-        }
-    }
-
 
 }
