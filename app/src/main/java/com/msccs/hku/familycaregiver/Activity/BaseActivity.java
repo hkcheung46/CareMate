@@ -22,6 +22,8 @@ import java.util.Arrays;
  * Created by HoiKit on 13/08/2017.
  */
 
+//TO-DO: DECOMMISSION THIS CLASS SINCE WE NO LONGER NEED THE AUTH STATE CHANGE LISTENER
+
 public class BaseActivity extends AppCompatActivity {
 
     // Choose an arbitrary request code value
@@ -49,14 +51,23 @@ public class BaseActivity extends AppCompatActivity {
                     onSignedInInitialize(user.getDisplayName(),user.getPhoneNumber(),user.getPhotoUrl());
                 }else{
                     //user is signed out
+                    Bundle params = new Bundle();
+
+                    // ## Set the default region code as HK (+852) when input phone number in UI
+                    params.putString(AuthUI.EXTRA_DEFAULT_COUNTRY_CODE, "HK");
+                    AuthUI.IdpConfig phoneConfigWithDefaultCountryAndNationalNumber =
+                            new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER)
+                                    .setParams(params)
+                                    .build();
                     startActivityForResult(
                             AuthUI.getInstance()
                                     .createSignInIntentBuilder()
-                                    .setIsSmartLockEnabled(false)
                                     .setAvailableProviders(
-                                            Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).build()))
+                                            Arrays.asList(
+                                                    new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).build()))
                                     .build(),
-                            RC_SIGN_IN);
+                            RC_SIGN_IN,params);
+
                 }
             }
         };
@@ -88,19 +99,6 @@ public class BaseActivity extends AppCompatActivity {
         mUserPhotoUrl=null;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN) {
-            IdpResponse response = IdpResponse.fromResultIntent(data);
-            if (resultCode == RESULT_OK) {
-                showSnackbar(R.string.sign_in_successful);
-                // Toast.makeText(this, getText(R.string.sign_in_successful), Toast.LENGTH_SHORT).show();
-            } else if (resultCode == RESULT_CANCELED) {
-                finish();
-            }
-        }
-    }
 
     public void showSnackbar(@StringRes int errorMessageRes) {
         Snackbar.make(findViewById(android.R.id.content), errorMessageRes, Snackbar.LENGTH_LONG).show();

@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.msccs.hku.familycaregiver.Activity.MainActivity;
+import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
 import com.msccs.hku.familycaregiver.R;
 
 import java.util.regex.Matcher;
@@ -33,8 +33,8 @@ public class SettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.userSettings));
-        ((MainActivity) getActivity()).fabChangeOnSettingsFragmentResume();
+        ((SignedInActivity) getActivity()).setActionBarTitle(getString(R.string.userSettings));
+        ((SignedInActivity) getActivity()).fabChangeOnSettingsFragmentResume();
     }
 
     @Override
@@ -87,8 +87,8 @@ public class SettingsFragment extends Fragment {
             FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    ((MainActivity) getActivity()).showSnackbar(R.string.userInfoUpdateSuccessful);
-                    (((MainActivity) getActivity())).updateUserDisplayInfo();
+                    ((SignedInActivity) getActivity()).showSnackbar(R.string.userInfoUpdateSuccessful);
+                    (((SignedInActivity) getActivity())).updateUserDisplayInfo();
                 }
             });
         }

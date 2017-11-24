@@ -7,23 +7,55 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 
 import com.msccs.hku.familycaregiver.R;
 
-public class NewGroupActivity extends BaseActivity {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+public class NewGroupActivity extends AppCompatActivity {
 
     private Button mBirthdayBtn;
     private int mYear, mMonth, mDay;
+    private IncludedLayout newGroupInfoLayout;
+
+    //This is the include layout, bind it here
+    @BindView(R.id.content_new_group) View newGroupInputView;
+
+    @BindView(R.id.fab)
+    public FloatingActionButton addNewGroupFab;
+
+    @OnClick(R.id.fab)
+    public void onAddNewGroupFabClicked(){
+        String elderlyName = newGroupInfoLayout.elderlyNameTbx.getText().toString().trim();
+        //Log.d("elderlyName",elderlyName);
+
+        Intent intent = new Intent(NewGroupActivity.this,InviteGroupMemberActivity.class);
+        intent.putExtra(InviteGroupMemberActivity.EXTRA_ELDERLY_NAME,elderlyName);
+        intent.putExtra(InviteGroupMemberActivity.EXTRA_BIRTHDAY_DAY,mDay);
+        intent.putExtra(InviteGroupMemberActivity.EXTRA_BIRTHDAY_MONTH,mMonth);
+        intent.putExtra(InviteGroupMemberActivity.EXTRA_BIRTHDAY_YEAR,mYear);
+
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_group);
+        ButterKnife.bind(this);
+
+        newGroupInfoLayout = new IncludedLayout();
+        ButterKnife.bind(newGroupInfoLayout,newGroupInputView);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.new_group);
@@ -52,14 +84,12 @@ public class NewGroupActivity extends BaseActivity {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(NewGroupActivity.this,InviteGroupMemberActivity.class);
-                startActivity(intent);
-            }
-        });
+    }
 
+
+    //This is just for handle the include inside the xml, using butterknife
+    //ref: https://stackoverflow.com/questions/40741828/butterknife-does-not-work-with-include-tag
+    static class IncludedLayout{
+        @BindView(R.id.elderlyNameTbx) EditText elderlyNameTbx;
     }
 }

@@ -10,10 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.msccs.hku.familycaregiver.Activity.MainActivity;
+import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
 import com.msccs.hku.familycaregiver.GroupsListPagerAdapter;
 import com.msccs.hku.familycaregiver.R;
-import com.msccs.hku.familycaregiver.ToDoListPagerAdapter;
 
 /**
  * Created by HoiKit on 20/08/2017.
@@ -29,7 +28,7 @@ public class GroupsTabHostFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity)getActivity()).setActionBarTitle(getString(R.string.groups));
+        ((SignedInActivity)getActivity()).setActionBarTitle(getString(R.string.groups));
     }
 
     @Override
@@ -54,7 +53,7 @@ public class GroupsTabHostFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
-                ((MainActivity)getActivity()).onGroupTabSelected(tab.getPosition());
+                ((SignedInActivity)getActivity()).onGroupTabSelected(tab.getPosition());
             }
 
             @Override
@@ -70,7 +69,7 @@ public class GroupsTabHostFragment extends Fragment {
 
         try {
             //Call the method to update the fab button being show, this is handled in main activity
-            ((MainActivity) getActivity()).onGroupTabSelected(mTabLayout.getSelectedTabPosition());
+            ((SignedInActivity) getActivity()).onGroupTabSelected(mTabLayout.getSelectedTabPosition());
         }catch (ClassCastException e){
             e.printStackTrace();
         }

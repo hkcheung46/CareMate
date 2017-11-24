@@ -1,105 +1,105 @@
 package com.msccs.hku.familycaregiver.Activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.bumptech.glide.Glide;
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.msccs.hku.familycaregiver.Fragment.GroupsTabHostFragment;
 import com.msccs.hku.familycaregiver.Fragment.SettingsFragment;
-import com.msccs.hku.familycaregiver.Model.UserInfoMap;
 import com.msccs.hku.familycaregiver.R;
 import com.msccs.hku.familycaregiver.Fragment.ToDoListTabHostFragment;
 
-public class MainActivity extends BaseActivity implements ToDoListTabHostFragment.onToDoListTabSelectedListener, GroupsTabHostFragment.onGroupsTabSelectedListener, SettingsFragment.OnSettingsFragmentResumeListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
+//This is the class controlling the main page after login
+//The individual behaviour of each function is handled inside each fragment
+
+public class SignedInActivity extends AppCompatActivity implements ToDoListTabHostFragment.onToDoListTabSelectedListener, GroupsTabHostFragment.onGroupsTabSelectedListener, SettingsFragment.OnSettingsFragmentResumeListener {
+
 
     private TextView mLoginUserPhoneTxtView;
     private TextView mLoginUserNameTxtView;
     private ImageView mLoginUserPhotoImgView;
-    private NavigationView mNavigationView;
-    private FloatingActionButton mGroupAddFab;
-    private FloatingActionButton mNewTaskFab;
-    private FloatingActionButton mSaveSettingsFab;
     private DatabaseReference mDatabase;
 
+    @BindView(R.id.root)
+    View mRootView;
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+    @BindView(R.id.id_toolbar)
+    Toolbar mToolbar;
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            //假如USER是第一次LOGIN..佢既USER DISPLAY INFO會是沒有DISPLAY NAME的 (因為只是ENABLE了PHONE NUMBER AUTHENTICATION), 要迫USER填番
-            if (FirebaseAuth.getInstance().getCurrentUser().getDisplayName() == null) {
-                View userDisplayNameDialog = getLayoutInflater().inflate(R.layout.dialog_user_display_name, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                alertDialogBuilder.setView(userDisplayNameDialog);
-                final EditText userInput = (EditText) userDisplayNameDialog.findViewById(R.id.editTextDialogDisplayNameInput);
+    @BindView(R.id.drawer_layout)
+    DrawerLayout mDrawerLayout;
 
-                // Set Dialog Message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton(getString(R.string.ok),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        // get user input and set it to result
-                                        // edit text
-                                        String displayNameToBeUpdated = userInput.getText().toString().trim();
-                                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(displayNameToBeUpdated).build();
-                                        FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                showSnackbar(R.string.userInfoUpdateSuccessful);
-                                                updateUserDisplayInfo();
-                                                mDatabase.child("users").push().setValue( new UserInfoMap(FirebaseAuth.getInstance().getCurrentUser().getUid(),FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(),FirebaseAuth.getInstance().getCurrentUser().getDisplayName()));
-                                            }
-                                        });
-                                    }
-                                });
+    @BindView(R.id.id_nv_menu)
+    NavigationView mNavigationView;
 
-                // create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }
+    @BindView(R.id.add_new_group_fab)
+    FloatingActionButton mGroupAddFab;
+
+    @BindView(R.id.add_new_task_fab)
+    FloatingActionButton mNewTaskFab;
+
+    @BindView(R.id.save_settings_fab)
+    FloatingActionButton mSaveSettingsFab;
+
+    @OnClick(R.id.save_settings_fab)
+    public void onSaveSettingsFABClick(View v) {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (currentFragment instanceof SettingsFragment) {
+            ((SettingsFragment) currentFragment).saveUserInfo();
         }
     }
+
+    @OnClick(R.id.add_new_group_fab)
+    public void onAddNewGroupFABClick(View v) {
+        Intent intent = new Intent(SignedInActivity.this, NewGroupActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_signed_in);
+        ButterKnife.bind(this);
 
         //Action Bar handling
-        Toolbar toolbar = (Toolbar) findViewById(R.id.id_toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(mToolbar);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
 
-        final DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
+        //ActionBarToggle
+        ActionBarDrawerToggle mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.drawer_open, R.string.drawer_close);
         mDrawerToggle.setDrawerIndicatorEnabled(true);
 
-        mNavigationView = (NavigationView) findViewById(R.id.id_nv_menu);
+        //Navigation Item onClick Handling
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             //Last Checked Item
@@ -153,8 +153,20 @@ public class MainActivity extends BaseActivity implements ToDoListTabHostFragmen
 
                     case R.id.sign_out_menu:
                         mDrawerLayout.closeDrawers();
-                        FirebaseAuth fAuth = FirebaseAuth.getInstance();
-                        fAuth.signOut();
+                        AuthUI.getInstance()
+                                .signOut(SignedInActivity.this)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()) {
+                                            Intent intent = new Intent(SignedInActivity.this,AuthUIActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        } else {
+                                            showSnackbar(R.string.sign_out_failed);
+                                        }
+                                    }
+                                });
                         return true;
                 }
                 return false;
@@ -164,54 +176,14 @@ public class MainActivity extends BaseActivity implements ToDoListTabHostFragmen
         //Navigation drawer Item linkage
         View header = mNavigationView.getHeaderView(0);
         mLoginUserPhoneTxtView = (TextView) header.findViewById(R.id.loginUserPhone);
-        mLoginUserNameTxtView = (TextView) header.findViewById(R.id.loginUserName);
         mLoginUserPhotoImgView = (ImageView) header.findViewById(R.id.loginUserPhoto);
 
-        //FAB linkage
-        mGroupAddFab = (FloatingActionButton) findViewById(R.id.add_new_group_fab);
-        mNewTaskFab = (FloatingActionButton) findViewById(R.id.add_new_task_fab);
-        mSaveSettingsFab = (FloatingActionButton) findViewById(R.id.save_settings_fab);
-
-        //Handle the Add Group Button Fab
-        mGroupAddFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, NewGroupActivity.class);
-                startActivity(intent);
-            }
-        });
+        updateUserDisplayInfo();
 
         //Default entry page will be the to do list
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new ToDoListTabHostFragment(), null);
         transaction.commit();
-
-        //Handle the Save Settings FAB
-        mSaveSettingsFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                if (currentFragment instanceof SettingsFragment) {
-                    ((SettingsFragment) currentFragment).saveUserInfo();
-                }
-            }
-
-        });
-    }
-
-    @Override
-    protected void onSignedInInitialize(String username, String userPhone, Uri userPhotoUri) {
-        super.onSignedInInitialize(username, userPhone, userPhotoUri);
-        mLoginUserNameTxtView.setText(username);
-        mLoginUserPhoneTxtView.setText(userPhone);
-        //Glide.with(mLoginUserPhotoImgView.getContext()).load(userPhotoUri).into(mLoginUserPhotoImgView);
-    }
-
-    @Override
-    protected void onSignedOutCleanup() {
-        super.onSignedOutCleanup();
-        mLoginUserNameTxtView.setText(ANONYMOUS);
-        mLoginUserPhoneTxtView.setText("");
     }
 
     public void setActionBarTitle(String title) {
@@ -255,7 +227,6 @@ public class MainActivity extends BaseActivity implements ToDoListTabHostFragmen
         }
     }
 
-
     //Below method are for implement the fab changes method for fragment
     @Override
     public void onToDoListTabSelected(int position) {
@@ -274,7 +245,14 @@ public class MainActivity extends BaseActivity implements ToDoListTabHostFragmen
     }
 
     public void updateUserDisplayInfo() {
-        mLoginUserNameTxtView.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-        mLoginUserPhoneTxtView.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        mLoginUserPhoneTxtView.setText(user.getPhoneNumber());
+        Glide.with(mLoginUserPhotoImgView.getContext()).load(user.getPhotoUrl()).into(mLoginUserPhotoImgView);
     }
+
+    @MainThread
+    public void showSnackbar(@StringRes int messageRes) {
+        Snackbar.make(mRootView, messageRes, Snackbar.LENGTH_LONG).show();
+    }
+
 }

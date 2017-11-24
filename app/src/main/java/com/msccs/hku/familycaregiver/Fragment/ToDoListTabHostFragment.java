@@ -2,16 +2,14 @@ package com.msccs.hku.familycaregiver.Fragment;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.msccs.hku.familycaregiver.Activity.MainActivity;
+import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
 import com.msccs.hku.familycaregiver.R;
 import com.msccs.hku.familycaregiver.ToDoListPagerAdapter;
 
@@ -37,7 +35,7 @@ public class ToDoListTabHostFragment extends ListFragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((MainActivity)getActivity()).setActionBarTitle(getString(R.string.toDoList));
+        ((SignedInActivity)getActivity()).setActionBarTitle(getString(R.string.toDoList));
     }
 
     @Override
@@ -60,7 +58,7 @@ public class ToDoListTabHostFragment extends ListFragment {
 
                 try{
                     //Call the method to update the fab button being show, this is handled in main activity
-                    ((MainActivity)getActivity()).onToDoListTabSelected(tab.getPosition());
+                    ((SignedInActivity)getActivity()).onToDoListTabSelected(tab.getPosition());
                 }catch(ClassCastException e){
                     e.printStackTrace();
                 }
@@ -79,7 +77,7 @@ public class ToDoListTabHostFragment extends ListFragment {
 
         try {
             //Call the method to update the fab button being show, this is handled in main activity
-            ((MainActivity) getActivity()).onToDoListTabSelected(mTabLayout.getSelectedTabPosition());
+            ((SignedInActivity) getActivity()).onToDoListTabSelected(mTabLayout.getSelectedTabPosition());
         }catch (ClassCastException e){
             e.printStackTrace();
         }

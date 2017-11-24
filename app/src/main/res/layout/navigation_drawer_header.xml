@@ -7,21 +7,12 @@
     android:padding="16dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
-
-    <TextView
-        android:text="@string/loginUserName"
-        android:id="@+id/loginUserName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        />
-
     <TextView
         android:id="@+id/loginUserPhone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/loginUserName"
+
+        android:layout_alignParentBottom="true"
         android:text="@string/loginUserPhone"/>
 
     <ImageView
