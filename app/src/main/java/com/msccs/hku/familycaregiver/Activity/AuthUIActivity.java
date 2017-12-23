@@ -1,19 +1,31 @@
 package com.msccs.hku.familycaregiver.Activity;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.MainThread;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
+import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.R;
 
 import java.util.Arrays;
@@ -58,7 +70,7 @@ public class AuthUIActivity extends AppCompatActivity {
     //https://stackoverflow.com/questions/45308159/basefragmentactivityapi16-startactivityforresultintent-int-bundle-throwing-e
     private void startLoginActivity(){
         Bundle params = new Bundle();
-        AuthUI.IdpConfig phoneConfigWithDefaultCountryAndNationalNumber = new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).setParams(params).build();
+        AuthUI.IdpConfig phoneConfigWithDefaultCountryAndNationalNumber = new AuthUI.IdpConfig.Builder(AuthUI.PHONE_VERIFICATION_PROVIDER).build();
         startActivityForResult(
                 AuthUI.getInstance()
                         .createSignInIntentBuilder()
@@ -71,7 +83,6 @@ public class AuthUIActivity extends AppCompatActivity {
 
     @OnClick(R.id.signIn)
     public void signIn(View view){
-        Log.d("signin","signIn");
         startLoginActivity();
     }
 
@@ -94,6 +105,24 @@ public class AuthUIActivity extends AppCompatActivity {
 
         // Successfully signed in
         if (resultCode == RESULT_OK) {
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            final DatabaseReference userReference = database.getReference("users");
+            Query query = userReference.orderByChild("uid").equalTo(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.exists()){
+                        //If cannot find the user data in the custom user list, it means it is first time user, have to log it's info into the user table
+                         CustomFirebaseUser newUser = new CustomFirebaseUser(FirebaseAuth.getInstance().getCurrentUser().getUid(),FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                         userReference.push().setValue(newUser);
+                    }
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
             startSignedInActivity(response);
             finish();
             return;
@@ -105,7 +134,7 @@ public class AuthUIActivity extends AppCompatActivity {
                 return;
             }
 
-            //電話認證應該唔會HIT中NO NETWORK, 不過放住先
+            //this may be useless at all, since we are using phone login
             if (response.getErrorCode() == ErrorCodes.NO_NETWORK) {
                 showSnackbar(R.string.no_internet_connection);
                 return;

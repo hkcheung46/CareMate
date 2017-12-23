@@ -7,12 +7,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context="com.msccs.hku.familycaregiver.Activity.AuthUIActivity">
+    tools:context="com.msccs.hku.familycaregiver.Activity.AuthUIActivity"
+    android:background="@drawable/senior">
 
-    <Button
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="center"
+        android:src="@drawable/appname"
+        android:layout_marginBottom="20dp"/>
+
+    <TextView
+        android:elevation="4dp"
+        android:background="@drawable/round_rect_orange_shape"
         android:id="@+id/signIn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sign_in"/>
+        android:gravity="center"
+        android:text="Getting start"
+        android:textSize="15sp"
+        android:padding="10dp"
+        />
 
 </LinearLayout>
