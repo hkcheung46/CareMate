@@ -10,4 +10,8 @@
     <color name="black">#000000</color>
     <color name="brown">#ce6204</color>
     <color name="orange">#111111</color>
+    <!--  color -->
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorDivider">#aaaaaa</color>
 </resources>

@@ -34,6 +34,8 @@
             android:label="@string/title_activity_create_new_task"
             android:theme="@style/AppTheme" />
         <activity android:name=".Activity.TaskDetailActivity"></activity>
+        <activity android:name=".Activity.CalendarActivity"/>
+        <activity android:name=".Activity.DayViewActivity"/>
     </application>
 
 </manifest>
