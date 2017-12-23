@@ -77,10 +77,6 @@ public class GroupTaskListFragment extends ListFragment {
                 String taskId = mAdapter.getCustomTaskId(position);
                 Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
 
-                /**
-                            NOTE: THE TASK DETAIL LIST RETRIEVE DATA NOT FROM ANOTHER ACTIVITY
-                            BUT WILL DO A NETWORK CALL ITSELF USING THE TASK ID PASSED TO IT
-                            **/
                 intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId);
                 startActivity(intent);
             }
