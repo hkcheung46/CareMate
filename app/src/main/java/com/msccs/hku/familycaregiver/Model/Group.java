@@ -11,6 +11,15 @@ public class Group {
     private String elderName;
     private Date birthday;
 
+    public Group(){
+
+    }
+
+    public Group(String elderName, Date birthday) {
+        this.elderName = elderName;
+        this.birthday = birthday;
+    }
+
     public String getElderName() {
         return elderName;
     }

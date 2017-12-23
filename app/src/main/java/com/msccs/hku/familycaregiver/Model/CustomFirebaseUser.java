@@ -4,7 +4,7 @@ package com.msccs.hku.familycaregiver.Model;
  * Created by HoiKit on 02/09/2017.
  */
 
-public class FirebaseUser {
+public class CustomFirebaseUser {
 
     //Assume in the whole application, the display name will be using the locally stored name
     //So in here, no need to store the user display name setup by user
@@ -12,12 +12,12 @@ public class FirebaseUser {
     private String UID;
     private String telNum;
 
-    public FirebaseUser(String UID, String telNum) {
+    public CustomFirebaseUser(String UID, String telNum) {
         this.UID = UID;
         this.telNum = telNum;
     }
 
-    public FirebaseUser() {
+    public CustomFirebaseUser() {
     }
 
     public String getUID() {
@@ -41,8 +41,8 @@ public class FirebaseUser {
             String localContactsPhoneNo = ((LocalContacts)(object)).getContactsPhoneNumber().replaceAll("\\s+","");
             String firebaseTelNo = this.getTelNum();
             return (localContactsPhoneNo.equals(firebaseTelNo)||("+852" +localContactsPhoneNo).equals(firebaseTelNo));
-        }else if (object instanceof FirebaseUser){
-            return (this.getUID().equals(((FirebaseUser) object).getUID()));
+        }else if (object instanceof CustomFirebaseUser){
+            return (this.getUID().equals(((CustomFirebaseUser) object).getUID()));
         }
         return super.equals(object);
     }

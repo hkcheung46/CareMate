@@ -63,12 +63,14 @@ public class LocalContacts {
     }
 
     public boolean equals(Object object) {
-        if (object instanceof FirebaseUser) {
-            String localContactsPhoneNo = this.getContactsPhoneNumber().replaceAll("\\s+","");
-            String firebaseTelNo = ((FirebaseUser)object).getTelNum();
+        String localContactsPhoneNo = this.getContactsPhoneNumber().replaceAll("\\s+","");
+        if (object instanceof CustomFirebaseUser) {
+            String firebaseTelNo = ((CustomFirebaseUser)object).getTelNum();
             return (localContactsPhoneNo.equals(firebaseTelNo)||("+852" +localContactsPhoneNo).equals(firebaseTelNo));
         }else if (object instanceof LocalContacts){
             return (this.getContactsPhoneNumber().equals(((LocalContacts) object).getContactsPhoneNumber()));
+        }else if (object instanceof String){
+            return (object.equals(localContactsPhoneNo)||(object).equals("+852"+localContactsPhoneNo));
         }
         return super.equals(object);
     }

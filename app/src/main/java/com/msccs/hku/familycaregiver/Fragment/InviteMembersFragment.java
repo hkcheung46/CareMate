@@ -9,11 +9,13 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.provider.ContactsContract;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -22,24 +24,29 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.msccs.hku.familycaregiver.Model.FirebaseUser;
+import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.Model.LocalContacts;
 import com.msccs.hku.familycaregiver.R;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class InviteMembersFragment extends Fragment {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
+    public static final String ARGS_MODE ="COM.MSCCS.HKU.FAMILYCAREGIVER.INVITE_MODE";
+    public static final String ARGS_GROUPID ="COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_GROUP_ID";
+
+    private String mGroupId;
 
     ListView mContactsListView;
     Cursor cursor;
     String name, phoneNumber;
-    ArrayList<LocalContacts> localStoredContacts;
-    ArrayList<FirebaseUser> firebaseStoredUserList;
+    ArrayList<CustomFirebaseUser> firebaseStoredUserList;
     ArrayAdapter arrayAdapter;
+    String mInviteMode;         //For existing group or new group?
 
     public InviteMembersFragment() {
 
@@ -48,7 +55,7 @@ public class InviteMembersFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        firebaseStoredUserList = new ArrayList<FirebaseUser>();
+
     }
 
     @Override
@@ -63,6 +70,10 @@ public class InviteMembersFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        mInviteMode = getArguments().getString(ARGS_MODE,"n");          //N = new group, e = Existing group
+        mGroupId = getArguments().getString(ARGS_GROUPID,"z");
+
         //After android 6.0 need to get the run time permission
         //Check does permission already granted
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -71,86 +82,128 @@ public class InviteMembersFragment extends Fragment {
                 Toast.makeText(getActivity(), "Please go to app settings to grant the READ CONTACTS PERMISSION", Toast.LENGTH_LONG).show();
             } else {
                 //If user's have never answer grant the permission or not, display the dialog and ask for the requested permission
-                String[] perReqArray={Manifest.permission.READ_CONTACTS};
-                requestPermissions(perReqArray,MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+                String[] perReqArray = {Manifest.permission.READ_CONTACTS};
+                requestPermissions(perReqArray, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
             }
         }
 
         //Check the permission one more time, if the get local contacts permission is already granted,fill in the localStoredList
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            //This is the list of contacts from local
-            getLocalContactsIntoArrayList();
-            getFirebaseUserListIntoArrayList();
+            initializeListView();
         }
     }
 
-
-    public void getLocalContactsIntoArrayList() {
-        //The purpose of using hashset here is to avoid duplication, sometimes the local user contact is duplicate (one in google, one in sim card, one in local phone storage)
+    //Performance much better if user Hashmap instead of Arraylist
+    public void initializeListView() {
+        //Get the Local Contacts into an array list
         Set<LocalContacts> s = new LinkedHashSet<LocalContacts>();
-        localStoredContacts = new ArrayList<LocalContacts>();
         cursor = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
         while (cursor.moveToNext()) {
             //20171111 - if need to use locally stored name in the add user list, should also retrieve the name here
             name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("\\s+", "");
             //This line is to put the phone number into the array-list,which is used for compare with the FireBase list
-            s.add(new LocalContacts(name,phoneNumber));
+            s.add(new LocalContacts(name, phoneNumber));
         }
+
+        final ArrayList<LocalContacts> localStoredContacts = new ArrayList<LocalContacts>();
         localStoredContacts.addAll(s);
         cursor.close();
-    }
 
-    public void getFirebaseUserListIntoArrayList(){
-        //This section is to retrieve the Firebase registered user info to local phone
-        FirebaseDatabase.getInstance().getReference("users").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot userInfoMapSnapshot : dataSnapshot.getChildren()) {
-                            FirebaseUser userInfo = userInfoMapSnapshot.getValue(FirebaseUser.class);
+        //Start getting the firebase user list
+        final HashMap<String, String> phoneUIDHashmap = new HashMap<>();
+        final ArrayList<LocalContacts> ToBeDisplayedList = new ArrayList<>();
 
-                            //This line is for get rid of having user's own user account also put into the lists
-                            if (!userInfo.getTelNum().equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())){
-                                firebaseStoredUserList.add(new FirebaseUser(userInfo.getUID(), userInfo.getTelNum()));
-                            }
-                        }
-
-                        //Compare the list of local contacts with firebase user list, retain only the common one inside the to-be displayed list
-                        localStoredContacts.retainAll(firebaseStoredUserList);
-
-                        //difficulties here: how to get the UID back to the local list, as we need it for adding user into group
-                        //Temporary workaround, compare it one by one and add back the UID into the list to be displayed
-                        //A manual version of inner join here
-                        firebaseStoredUserList.retainAll(localStoredContacts);
-                        for (LocalContacts localContacts:localStoredContacts){
-                            if ((localContacts.getFirebaseUID()==null || localContacts.getFirebaseUID().equals(""))){
-                                for (FirebaseUser firebaseUser:firebaseStoredUserList){
-                                    if (localContacts.equals(firebaseUser)){
-                                        localContacts.setFirebaseUID(firebaseUser.getUID());
-                                        continue;
-                                    }
-                                }
-                            }
-                        }
-
-
-                        //Attach the array adapter only after the to be displayed list is ready
-                        if (mContactsListView.getAdapter()==null){
-                            arrayAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, localStoredContacts);
-                            mContactsListView.setAdapter(arrayAdapter);
-                        }else{
-                            arrayAdapter.notifyDataSetChanged();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
+        FirebaseDatabase.getInstance().getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot userInfoMapSnapshot : dataSnapshot.getChildren()) {
+                    String phoneNum = userInfoMapSnapshot.getValue(CustomFirebaseUser.class).getTelNum();
+                    String uid = userInfoMapSnapshot.getValue(CustomFirebaseUser.class).getUID();
+                    if (!phoneNum.equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())) {
+                        phoneUIDHashmap.put(phoneNum, uid);
                     }
                 }
-        );
+
+                if (mInviteMode.equals("e")){
+                    FirebaseDatabase.getInstance().getReference("groupMem").child(mGroupId).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot groupMemSnapshot : dataSnapshot.getChildren()) {
+                                String telNum = groupMemSnapshot.getValue(CustomFirebaseUser.class).getTelNum();
+                                phoneUIDHashmap.remove(telNum);
+                            }
+
+                            //Intentionally out the comparison code here, to ensure the comparison is started after both local contact list and firebase user list has been completely loaded
+                            for (LocalContacts localContacts : localStoredContacts) {
+                                String localPhoneNum = localContacts.getContactsPhoneNumber();
+                                String standardPhoneNum = "+852"+localContacts.getContactsPhoneNumber();
+
+                                if (!localPhoneNum.equals("") && phoneUIDHashmap.get(localPhoneNum) != null) {
+                                    localContacts.setFirebaseUID(phoneUIDHashmap.get(localPhoneNum));
+                                    ToBeDisplayedList.add(localContacts);
+                                }
+
+                                if (phoneUIDHashmap.get(standardPhoneNum)!=null){
+                                    localContacts.setFirebaseUID(phoneUIDHashmap.get(standardPhoneNum));
+                                    ToBeDisplayedList.add(localContacts);
+                                }
+                            }
+
+
+
+                            //Attach the array adapter only after the to be displayed list is ready
+                            if (mContactsListView.getAdapter() == null) {
+                                arrayAdapter = new ArrayAdapter<LocalContacts>(getActivity(), android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, ToBeDisplayedList);
+                                mContactsListView.setAdapter(arrayAdapter);
+                            } else {
+                                arrayAdapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
+
+                if (mInviteMode.equals("n")) {
+                    //Intentionally out the comparison code here, to ensure the comparison is started after both local contact list and firebase user list has been completely loaded
+                    for (LocalContacts localContacts : localStoredContacts) {
+                        String localPhoneNum = localContacts.getContactsPhoneNumber();
+                        String standardPhoneNum = "+852" + localContacts.getContactsPhoneNumber();
+
+                        if (!localPhoneNum.equals("") && phoneUIDHashmap.get(localPhoneNum) != null) {
+                            localContacts.setFirebaseUID(phoneUIDHashmap.get(localPhoneNum));
+                            ToBeDisplayedList.add(localContacts);
+                        }
+
+                        if (phoneUIDHashmap.get(standardPhoneNum) != null) {
+                            localContacts.setFirebaseUID(phoneUIDHashmap.get(standardPhoneNum));
+                            ToBeDisplayedList.add(localContacts);
+                        }
+                    }
+
+
+                    //Attach the array adapter only after the to be displayed list is ready
+                    if (mContactsListView.getAdapter() == null) {
+                        arrayAdapter = new ArrayAdapter<LocalContacts>(getActivity(), android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, ToBeDisplayedList);
+                        mContactsListView.setAdapter(arrayAdapter);
+                    } else {
+                        arrayAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
 
     @Override
     public void onRequestPermissionsResult(int RC, String per[], int[] PResult) {
@@ -158,13 +211,27 @@ public class InviteMembersFragment extends Fragment {
             case MY_PERMISSIONS_REQUEST_READ_CONTACTS:
                 if (PResult.length > 0 && PResult[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(getActivity(), "Permission Granted, Now your application can access CONTACTS.", Toast.LENGTH_LONG).show();
-                    getLocalContactsIntoArrayList();
-                    getFirebaseUserListIntoArrayList();
+                    initializeListView();
                 } else {
                     Toast.makeText(getActivity(), "Permission Canceled, Now your application cannot access CONTACTS.", Toast.LENGTH_LONG).show();
                 }
                 break;
         }
+    }
+
+    //This is the method for the invite member activity to call in order to get the UID to be added to the group
+    public ArrayList getToBeInvitedList() {
+        ArrayList toBeInvitedUidList = new ArrayList();
+
+        SparseBooleanArray selectePos = mContactsListView.getCheckedItemPositions();
+        ListAdapter lAdapter = mContactsListView.getAdapter();
+
+        for (int i = 0; i < lAdapter.getCount(); i++) {
+            if (selectePos.get(i)) {
+                toBeInvitedUidList.add(((LocalContacts) (lAdapter.getItem(i))).getFirebaseUID());
+            }
+        }
+        return toBeInvitedUidList;
     }
 
 }

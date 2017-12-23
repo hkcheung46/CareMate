@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
 import com.msccs.hku.familycaregiver.R;
-import com.msccs.hku.familycaregiver.ToDoListPagerAdapter;
+import com.msccs.hku.familycaregiver.Adapter.ToDoListPagerAdapter;
 
 public class ToDoListTabHostFragment extends ListFragment {
 

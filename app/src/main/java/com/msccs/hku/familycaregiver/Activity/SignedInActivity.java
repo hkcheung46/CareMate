@@ -1,6 +1,8 @@
 package com.msccs.hku.familycaregiver.Activity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -8,17 +10,21 @@ import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
@@ -47,6 +53,8 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
     private ImageView mLoginUserPhotoImgView;
     private DatabaseReference mDatabase;
 
+    private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
+
     @BindView(R.id.root)
     View mRootView;
 
@@ -64,6 +72,13 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
 
     @BindView(R.id.add_new_task_fab)
     FloatingActionButton mNewTaskFab;
+
+    @OnClick(R.id.add_new_task_fab)
+    public void onAddNewTaskFABClick(View v){
+        Intent intent = new Intent(SignedInActivity.this,CreateNewTaskActivity.class);
+        intent.putExtra(CreateNewTaskActivity.EXTRA_CREATE_NEW_TASK_MODE,"g");
+        startActivity(intent);
+    }
 
     @BindView(R.id.save_settings_fab)
     FloatingActionButton mSaveSettingsFab;
@@ -159,7 +174,7 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
                                         if (task.isSuccessful()) {
-                                            Intent intent = new Intent(SignedInActivity.this,AuthUIActivity.class);
+                                            Intent intent = new Intent(SignedInActivity.this, AuthUIActivity.class);
                                             startActivity(intent);
                                             finish();
                                         } else {
@@ -184,7 +199,22 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, new ToDoListTabHostFragment(), null);
         transaction.commit();
+
+
+        //Ask for reading local contact permission
+        if (ContextCompat.checkSelfPermission(SignedInActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("testing", "i am fired");
+            //Handle the case in which the users have replied not grant the read local contacts to the application, show the rationale and ask him to grant
+            if (ActivityCompat.shouldShowRequestPermissionRationale(SignedInActivity.this, Manifest.permission.READ_CONTACTS)) {
+                Toast.makeText(SignedInActivity.this, "Please go to app settings to grant the READ CONTACTS PERMISSION", Toast.LENGTH_LONG).show();
+            } else {
+                //If user's have never answer grant the permission or not, display the dialog and ask for the requested permission
+                String[] perReqArray = {Manifest.permission.READ_CONTACTS};
+                ActivityCompat.requestPermissions(SignedInActivity.this, perReqArray, MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+            }
+        }
     }
+
 
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);

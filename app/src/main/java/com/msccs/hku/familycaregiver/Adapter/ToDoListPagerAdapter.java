@@ -1,4 +1,4 @@
-package com.msccs.hku.familycaregiver;
+package com.msccs.hku.familycaregiver.Adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

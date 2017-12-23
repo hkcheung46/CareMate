@@ -1,37 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-package="com.msccs.hku.familycaregiver">
+    package="com.msccs.hku.familycaregiver">
 
-<uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-<application
-    android:allowBackup="true"
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/app_name"
-    android:roundIcon="@mipmap/ic_launcher_round"
-    android:supportsRtl="true"
-    android:theme="@style/AppTheme">
-    <activity android:name=".Activity.SignedInActivity" />
-    <activity
-        android:name=".Activity.NewGroupActivity"
-        android:label="@string/title_activity_new_group"
-        android:theme="@style/AppTheme" />
-    <activity android:name=".Activity.InviteGroupMemberActivity" />
-    <activity android:name=".Activity.AuthUIActivity"></activity>
-    <activity
-        android:name=".Activity.CalendarActivity"
-        android:label="@string/title_activity_calendar"
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
         android:theme="@style/AppTheme">
-    </activity>
-    <activity
-        android:name=".Activity.DayViewActivity"
-        android:label="@string/title_activity_day_view"
-        android:theme="@style/AppTheme">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-    </activity>
-</application>
+        <activity android:name=".Activity.SignedInActivity" />
+        <activity
+            android:name=".Activity.NewGroupActivity"
+            android:label="@string/title_activity_new_group"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".Activity.InviteGroupMemberActivityForNewGp" />
+        <activity android:name=".Activity.AuthUIActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".Activity.GroupDetailActivity" />
+        <activity android:name=".Activity.InviteGpMemberForExistingGpActivity" />
+        <activity
+            android:name=".Activity.CreateNewTaskActivity"
+            android:label="@string/title_activity_create_new_task"
+            android:theme="@style/AppTheme" />
+        <activity android:name=".Activity.TaskDetailActivity"></activity>
+    </application>
 
 </manifest>

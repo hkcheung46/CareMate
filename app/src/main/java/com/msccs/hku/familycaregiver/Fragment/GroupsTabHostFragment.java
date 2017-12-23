@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
-import com.msccs.hku.familycaregiver.GroupsListPagerAdapter;
+import com.msccs.hku.familycaregiver.Adapter.GroupsListPagerAdapter;
 import com.msccs.hku.familycaregiver.R;
 
 /**
@@ -32,8 +32,7 @@ public class GroupsTabHostFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_group_tab_host, container, false);
     }
 
@@ -79,4 +78,6 @@ public class GroupsTabHostFragment extends Fragment {
     public interface onGroupsTabSelectedListener{
         void onGroupTabSelected(int position);
     };
+
+
 }
