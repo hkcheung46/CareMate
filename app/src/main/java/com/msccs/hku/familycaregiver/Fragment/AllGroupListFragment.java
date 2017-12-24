@@ -83,18 +83,18 @@ public class AllGroupListFragment extends ListFragment {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
                         // File not found
-                        Glide.with(AllGroupListFragment.this).load(R.drawable.ic_assignment_black_24dp).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+
+                        Glide.with(AllGroupListFragment.this).load(R.drawable.ic_account_circle_white_24dp).asBitmap().into(new BitmapImageViewTarget(groupImageView){
                             @Override
                             protected void setResource(Bitmap resource) {
                                 RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(getActivity().getResources(), resource);
                                 circularBitmapDrawable.setCircular(true);
                                 groupImageView.setImageDrawable(circularBitmapDrawable);
+                                groupImageView.setBackground(getResources().getDrawable(R.drawable.round_grey_oval));
                             }
                         });
                     }
-                });;
-
-
+                });
             }
         };
         this.setListAdapter(mAdapter);

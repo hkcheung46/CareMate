@@ -272,7 +272,7 @@ public class CreateNewTaskActivity extends AppCompatActivity {
 
                     finish();
                 }else{
-                    Snackbar.make(view, getString(R.string.pleaseFillAllMandatField), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(view, getString(R.string.pleaseCheckInput), Snackbar.LENGTH_LONG).show();
                 }
             }
         });
@@ -289,6 +289,23 @@ public class CreateNewTaskActivity extends AppCompatActivity {
         if (mTaskTypeRgp.getCheckedRadioButtonId()==-1){
             isValid=false;
         }
+
+        //If the date being compared is after the date argument, a value greater than zero is returned
+        if (mAllDaySwitch.isChecked()){
+            mEventStartCalendar.set(Calendar.HOUR,0);
+            mEventStartCalendar.set(Calendar.MINUTE,0);
+            mEventStartCalendar.set(Calendar.SECOND,0);
+            mEventStartCalendar.set(Calendar.MILLISECOND,0);
+            mEventEndCalendar.set(Calendar.HOUR,0);
+            mEventEndCalendar.set(Calendar.MINUTE,0);
+            mEventEndCalendar.set(Calendar.SECOND,0);
+            mEventEndCalendar.set(Calendar.MILLISECOND,0);
+        }
+
+        if (mEventStartCalendar.compareTo(mEventEndCalendar)>0){
+            isValid=false;
+        }
+
         return isValid;
     };
 

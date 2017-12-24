@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,6 +36,7 @@ import com.msccs.hku.familycaregiver.Model.LocalContacts;
 import com.msccs.hku.familycaregiver.tempStructure.UserTask;
 import com.msccs.hku.familycaregiver.R;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,15 +46,6 @@ public class TaskDetailActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
 
     public static String EXTRA_TASK_ID = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_ID";
-    /**
-     * public static String EXTRA_TASK_NAME = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_NAME";
-     * public static String EXTRA_TASK_DESCRIPTION = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_DESCRIPTION";
-     * public static String EXTRA_TASK_TYPE = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_TYPE";
-     * public static String EXTRA_TASK_START_DATE = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASKSTARTDATE";
-     * public static String EXTRA_TASK_END_DATE = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASKENDDATE";
-     * public static String EXTRA_IS_ALL_DAY_EVENT = "COM.MSCCS.HKU.FAMILYCAREGIVER.ISALLDAYEVENT";
-     * public static String EXTRA_TASK_STATUS = "COM.MSCCS.HKU.FAMILYCAREGIVER.TASKSTATUS";
-     **/
 
     private TextView mTaskNameLbl;
     private TextView mTaskDescriptionLbl;
@@ -87,15 +85,6 @@ public class TaskDetailActivity extends AppCompatActivity {
 
         //Get the task information from the intent
         mTaskId = getIntent().getStringExtra(EXTRA_TASK_ID);
-        /**
-         final String taskName = getIntent().getStringExtra(EXTRA_TASK_NAME);
-         String taskDescription = getIntent().getStringExtra(EXTRA_TASK_DESCRIPTION);
-         String taskType = getIntent().getStringExtra(EXTRA_TASK_TYPE);
-         Long taskStartDateLong = getIntent().getLongExtra(EXTRA_TASK_START_DATE, -1);
-         Long taskEndDateLong = getIntent().getLongExtra(EXTRA_TASK_END_DATE, -1);
-         Boolean isAllDayEvent = getIntent().getBooleanExtra(EXTRA_IS_ALL_DAY_EVENT, false);
-         String taskStatus = getIntent().getStringExtra(EXTRA_TASK_STATUS);
-         */
 
         //setup and initialize the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -118,6 +107,17 @@ public class TaskDetailActivity extends AppCompatActivity {
         mTaskOwnerLinearLayout = (LinearLayout) findViewById(R.id.ownerListLinearLayout);
         mTaskOwnerBtnLinearLayout = (LinearLayout) findViewById(R.id.taskOwnerBtnSet);
 
+        FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                initTaskOwnerList();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(mTaskId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -138,10 +138,13 @@ public class TaskDetailActivity extends AppCompatActivity {
                     switch (taskType) {
                         case "c":
                             mTaskTypeLbl.setText(R.string.casualTask);
+                            break;
                         case "i":
                             mTaskTypeLbl.setText(R.string.importantTask);
+                            break;
                         case "r":
                             mTaskTypeLbl.setText(R.string.reminder);
+                            break;
                         default:
                             break;
                     }
@@ -189,19 +192,15 @@ public class TaskDetailActivity extends AppCompatActivity {
                     switch (taskStatus) {
                         case "A":
                             mTaskStatusLbl.setText(getString(R.string.assigned));
-                            initTaskOwnerList();
+                            //initTaskOwnerList();
                             break;
                         case "N":
                             //Show there is no one owning this task at the moment
                             mTaskStatusLbl.setText(getString(R.string.pending));
-                            TextView contactTxtView = new TextView(TaskDetailActivity.this);
-                            contactTxtView.setGravity(Gravity.END);
-                            contactTxtView.setText("-");
-                            mTaskOwnerLinearLayout.addView(contactTxtView);
                             break;
                         case "C":
                             mTaskStatusLbl.setText(getString(R.string.completed));
-                            initTaskOwnerList();
+                            //initTaskOwnerList();
                             break;
                     }
 
@@ -220,89 +219,37 @@ public class TaskDetailActivity extends AppCompatActivity {
                 // 1) Set the task status as "assigned" in tasks json tree
                 // 2) Add the record of current user into the taskAssignee node
                 // 3) Add record to UserTask node
-
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference taskRef = database.getReference("tasks").child(mTaskId);
-                taskRef.child("status").setValue("A");
-                final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Query checkUserTaskAssignedAlreadyExistQuery = database.getReference("UserTask").child(currentUserUid).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
-                checkUserTaskAssignedAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            DatabaseReference userTaskAssignedRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Assigned");
-                            userTaskAssignedRef.push().setValue(new UserTask(currentUserUid, mTaskId));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-
-                Query taskAssigneeAlreadyExistQuery = database.getReference("taskAssignee").child(mTaskId).orderByChild("uid").equalTo(currentUserUid);
-                taskAssigneeAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            DatabaseReference taskAssigneeRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
-                            String currentUserPhoneNum = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-                            taskAssigneeRef.push().setValue(new CustomFirebaseUser(currentUserUid, currentUserPhoneNum));
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-                finish();
+                Task<?>[] tasks = new Task[]{
+                        setTaskStatus("A"),
+                        addCurrentUserToTaskAssignee(),
+                        addEntryToAssignedUserTask()
+                };
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
+                            }
+                        });
             }
         });
 
         mMarkAsCompleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("tasks").child(mTaskId).child("status");
-                taskRef.setValue("C");
 
-                final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Query assignedUserTaskAlreadyExistQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
-                assignedUserTaskAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                            dataSnapshot1.getRef().setValue(null);
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                Query completedUserTaskAlreadyExistQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Completed").orderByChild("taskId").equalTo(mTaskId);
-                completedUserTaskAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (!dataSnapshot.exists()) {
-                            DatabaseReference completedRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Completed");
-                            completedRef.push().setValue(new UserTask(currentUserUid, mTaskId));
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                finish();
+                Task<?>[] tasks = new Task[]{
+                        setTaskStatus("C"),
+                        removeEntryFromAssignedUserTask(),
+                        addEntryToCompletedUserTask()
+                };
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
+                            }
+                        });
             }
         });
 
@@ -313,62 +260,19 @@ public class TaskDetailActivity extends AppCompatActivity {
                 // 1. remove the entry from UserTask
                 // 2. remove the entry from taskAssignee
                 // 3. if taskAssignee have no entry, revert back the status to pending
-                final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                Query userTaskQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
-                userTaskQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.exists()) {
-                            for (DataSnapshot userTaskSnapShot : dataSnapshot.getChildren()) {
-                                userTaskSnapShot.getRef().setValue(null);
+
+                Task<?>[] tasks = new Task[]{
+                        removeEntryFromAssignedUserTask(),
+                        removeTaskAssigneeMayChangeStatusToPending()
+                };
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
                             }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                Query taskAssigneeSelfQuery = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).orderByChild("uid").equalTo(currentUserUid);
-                taskAssigneeSelfQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(final DataSnapshot taskAssigneeSnapshot) {
-                        if (taskAssigneeSnapshot.exists()) {
-                            // if there is only 1 assignee for this task before delete, it means this task is no longer assigned after withdraw
-                            Query checkAssigneeNoQuery = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
-                            checkAssigneeNoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getChildrenCount() == 1) {
-                                        DatabaseReference taskStatusRef = FirebaseDatabase.getInstance().getReference().child("tasks").child(mTaskId).child("status");
-                                        taskStatusRef.setValue("N");
-                                    }
-
-                                    for (DataSnapshot snapshot : taskAssigneeSnapshot.getChildren()) {
-                                        snapshot.getRef().setValue(null);
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                finish();
+                        });
             }
-
-
         });
 
     }
@@ -376,7 +280,8 @@ public class TaskDetailActivity extends AppCompatActivity {
     private void initTaskOwnerList() {
         if (ContextCompat.checkSelfPermission(TaskDetailActivity.this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
             final HashMap<String, LocalContacts> localContactsHashMap = getLocalContactsHashMap();
-
+            //Remove the existing list of contact person displayed before load
+            mTaskOwnerLinearLayout.removeAllViews();
             DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
             taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -384,7 +289,6 @@ public class TaskDetailActivity extends AppCompatActivity {
                     for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                         CustomFirebaseUser user = userSnapshot.getValue(CustomFirebaseUser.class);
                         final String phoneNo = user.getTelNum();
-
                         //If the whole tel code can be matched, use it, if not ignore the +XXX part
                         LocalContacts contact = localContactsHashMap.get(phoneNo);
                         if (contact == null) {
@@ -401,7 +305,7 @@ public class TaskDetailActivity extends AppCompatActivity {
                             contactTxtView.setText(phoneNo);
                         }
 
-                        //Enable user to click the contact permission to dial him
+                        //Enable user to click the contact person to dial him, will copy the phone number to dial screen
                         contactTxtView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -436,5 +340,182 @@ public class TaskDetailActivity extends AppCompatActivity {
         return s;
     }
 
+
+    private Task<String> removeEntryFromAssignedUserTask() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query assignedUserTaskAlreadyExistQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
+        assignedUserTaskAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                    dataSnapshot1.getRef().setValue(null);
+                    tcs.setResult(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    ;
+
+
+    private Task<String> addEntryToAssignedUserTask() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query checkUserTaskAssignedAlreadyExistQuery = database.getReference("UserTask").child(currentUserUid).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
+        checkUserTaskAssignedAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    DatabaseReference userTaskAssignedRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Assigned");
+                    userTaskAssignedRef.push().setValue(new UserTask(currentUserUid, mTaskId));
+                    tcs.setResult(null);
+                } else {
+                    tcs.setException(new IllegalStateException());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    private Task<String> addEntryToCompletedUserTask() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query completedUserTaskAlreadyExistQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Completed").orderByChild("taskId").equalTo(mTaskId);
+        completedUserTaskAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    DatabaseReference completedRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Completed");
+                    completedRef.push().setValue(new UserTask(currentUserUid, mTaskId));
+                    tcs.setResult(null);
+                } else {
+                    tcs.setException(new IllegalStateException());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    private Task<String> addCurrentUserToTaskAssignee() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        Query taskAssigneeAlreadyExistQuery = database.getReference("taskAssignee").child(mTaskId).orderByChild("uid").equalTo(currentUserUid);
+        taskAssigneeAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    DatabaseReference taskAssigneeRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
+                    String currentUserPhoneNum = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+                    taskAssigneeRef.push().setValue(new CustomFirebaseUser(currentUserUid, currentUserPhoneNum));
+                    tcs.setResult(null);
+                } else {
+                    tcs.setException(new IllegalStateException());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    ;
+
+    private Task<String> setTaskStatus(final String status) {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference taskRef = database.getReference("tasks").child(mTaskId);
+        taskRef.child("status").setValue(status);
+        tcs.setResult(null);
+        return tcs.getTask();
+    }
+
+    private Task<String> removeTaskAssigneeMayChangeStatusToPending() {
+
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+
+        String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query taskAssigneeSelfQuery = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).orderByChild("uid").equalTo(currentUserUid);
+        taskAssigneeSelfQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(final DataSnapshot taskAssigneeSnapshot) {
+                if (taskAssigneeSnapshot.exists()) {
+                    // if there is only 1 assignee for this task before delete, it means this task is no longer assigned after withdraw
+                    Query checkAssigneeNoQuery = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
+                    checkAssigneeNoQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.getChildrenCount() == 1) {
+                                DatabaseReference taskStatusRef = FirebaseDatabase.getInstance().getReference().child("tasks").child(mTaskId).child("status");
+                                taskStatusRef.setValue("N");
+
+                                for (DataSnapshot snapshot : taskAssigneeSnapshot.getChildren()) {
+                                    snapshot.getRef().setValue(null);
+                                }
+
+                                tcs.setResult(null);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            tcs.setException(new IllegalArgumentException());
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IllegalArgumentException());
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+    class RollbackIfFailure implements Continuation<Void, Task<Void>> {
+        @Override
+        public Task<Void> then(@NonNull Task<Void> task) throws Exception {
+
+            final TaskCompletionSource<Void> tcs = new TaskCompletionSource<>();
+
+            if (task.isSuccessful()) {
+                tcs.setResult(null);
+            } else {
+                // Rollback everything
+            }
+
+            return tcs.getTask();
+        }
+    }
 
 }

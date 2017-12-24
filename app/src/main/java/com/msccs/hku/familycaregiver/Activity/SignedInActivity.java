@@ -3,6 +3,7 @@ package com.msccs.hku.familycaregiver.Activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
@@ -14,6 +15,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
@@ -27,12 +30,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.msccs.hku.familycaregiver.Fragment.GroupsTabHostFragment;
 import com.msccs.hku.familycaregiver.Fragment.SettingsFragment;
 import com.msccs.hku.familycaregiver.R;
@@ -63,6 +73,8 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
 
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
+
+
 
     @BindView(R.id.id_nv_menu)
     NavigationView mNavigationView;
@@ -276,13 +288,37 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
 
     public void updateUserDisplayInfo() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String currentUserUid = user.getUid();
         mLoginUserPhoneTxtView.setText(user.getPhoneNumber());
-        Glide.with(mLoginUserPhotoImgView.getContext()).load(user.getPhotoUrl()).into(mLoginUserPhotoImgView);
+
+        //Load photo here
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference = storage.getReferenceFromUrl("gs://family-care-giver.appspot.com");
+        final StorageReference pathReference = storageReference.child("userPhoto/"+currentUserUid);
+
+        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(SignedInActivity.this).using(new FirebaseImageLoader()).load(pathReference).asBitmap().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).centerCrop().into(new BitmapImageViewTarget(mLoginUserPhotoImgView){
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(SignedInActivity.this.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        mLoginUserPhotoImgView.setImageDrawable(circularBitmapDrawable);
+                    }
+                });
+            }
+        });
+
     }
 
     @MainThread
     public void showSnackbar(@StringRes int messageRes) {
         Snackbar.make(mRootView, messageRes, Snackbar.LENGTH_LONG).show();
     }
+
+
+
+
 
 }

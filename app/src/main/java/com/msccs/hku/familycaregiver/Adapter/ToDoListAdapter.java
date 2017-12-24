@@ -1,17 +1,25 @@
 package com.msccs.hku.familycaregiver.Adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.msccs.hku.familycaregiver.Model.CustomTasks;
 import com.msccs.hku.familycaregiver.R;
 import com.msccs.hku.familycaregiver.tempStructure.IdTask;
@@ -55,18 +63,58 @@ public class ToDoListAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.my_task_list_item, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.task_list_item, parent, false);
         }
 
         final TextView taskNameLbl = (TextView) convertView.findViewById(R.id.taskNameLbl);
         final TextView taskStartDateLbl = (TextView) convertView.findViewById(R.id.taskStartDateLbl);
         final TextView taskEndDateLbl = (TextView) convertView.findViewById(R.id.taskEndDateLbl);
+        final ImageView groupImageView = (ImageView) convertView.findViewById(R.id.groupImgView);
 
         CustomTasks currentTask = getCustomTask(position);
 
         taskNameLbl.setText(currentTask.getTaskName());
         taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskStartDate()));
         taskEndDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskEndDate()));
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        String fileName = getCustomTask(position).getBelongToGroupId();
+        //StorageReference storageReference = storage.getReference();
+        StorageReference storageReference = storage.getReferenceFromUrl("gs://family-care-giver.appspot.com");
+        final StorageReference pathReference = storageReference.child("groupThumbNail/"+fileName);
+
+        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(context).using(new FirebaseImageLoader()).load(pathReference).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        groupImageView.setImageDrawable(circularBitmapDrawable);
+                    }
+
+
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // File not found
+
+                Glide.with(context).load(R.drawable.ic_account_circle_white_24dp).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        groupImageView.setImageDrawable(circularBitmapDrawable);
+                        groupImageView.setBackground(context.getResources().getDrawable(R.drawable.round_grey_oval));
+                    }
+                });
+            }
+        });
+
+
 
         return convertView;
     }
@@ -76,10 +124,18 @@ public class ToDoListAdapter extends BaseAdapter {
         return idTaskList.get(position).getTaskId();
     }
 
-    ;
-
     public CustomTasks getCustomTask(int position) {
         return idTaskList.get(position).getCustomTask();
+    }
+
+    public void updateData(ArrayList<IdTask> list){
+        this.idTaskList=list;
+        notifyDataSetChanged();
+    }
+
+    public void removeData() {
+        this.idTaskList.clear();
+        notifyDataSetChanged();
     }
 
 

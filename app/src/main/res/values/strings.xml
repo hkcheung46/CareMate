@@ -71,6 +71,7 @@
     <string name="taskGroup">Task Group</string>
     <string name="taskNameNotEmptyValidation">Task name is mandatory</string>
     <string name="pleaseFillAllMandatField">Please fill in all mandatory fields</string>
+    <string name="pleaseCheckInput">Please check your input</string>
     <string name="startTime">Start Time</string>
     <string name="endTime">End Time</string>
     <string name="status">Status</string>

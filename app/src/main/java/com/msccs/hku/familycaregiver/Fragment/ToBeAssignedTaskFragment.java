@@ -98,9 +98,9 @@ public class ToBeAssignedTaskFragment extends ListFragment {
     }
 
     private void reloadToBeAssignedTask(){
-        mIdTaskList.clear();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference inGroupRef = FirebaseDatabase.getInstance().getReference("inGroup").child(currentUserId);
+        final ArrayList<IdTask> newIdTaskList = new ArrayList<IdTask>();
         inGroupRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -114,7 +114,6 @@ public class ToBeAssignedTaskFragment extends ListFragment {
                         public void onDataChange(DataSnapshot dataSnapshot1) {
                             for (DataSnapshot groupTaskSnapshot:dataSnapshot1.getChildren()){
                                 GroupTask groupTask = groupTaskSnapshot.getValue(GroupTask.class);
-
                                 Query taskRef = FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(groupTask.getTaskId());
                                 taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
@@ -123,10 +122,10 @@ public class ToBeAssignedTaskFragment extends ListFragment {
                                             String taskId = taskSnapshot.getKey();
                                             CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
                                             if (task.getStatus().equals("N")){
-                                                mIdTaskList.add(new IdTask(taskId,task));
+                                                newIdTaskList.add(new IdTask(taskId,task));
                                             }
                                         }
-                                        mAdapter.notifyDataSetChanged();
+                                        mAdapter.updateData(newIdTaskList);
                                     }
 
                                     @Override

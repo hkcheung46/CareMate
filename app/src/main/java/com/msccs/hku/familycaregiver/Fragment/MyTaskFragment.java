@@ -2,9 +2,11 @@ package com.msccs.hku.familycaregiver.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,12 +46,9 @@ public class MyTaskFragment extends ListFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         mIdTaskList = new ArrayList<IdTask>();
         mAdapter = new ToDoListAdapter(getContext(), mIdTaskList);
         getListView().setAdapter(mAdapter);
-        reloadMyTask();
-
 
         this.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -90,19 +89,23 @@ public class MyTaskFragment extends ListFragment {
                     }
                 }
         );
-
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        //This on resume fire when return frm other activity, so it works
+        reloadMyTask();
+    }
 
-
-
-    private void reloadMyTask(){
+    public void reloadMyTask(){
+        mAdapter.removeData();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference myTaskQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserId).child("Assigned");
+        final ArrayList<IdTask> newIdTaskList = new ArrayList<IdTask>();
         myTaskQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mIdTaskList.clear();
                 for (DataSnapshot userTaskSnapshot:dataSnapshot.getChildren()){
                     UserTask userTask = userTaskSnapshot.getValue(UserTask.class);
                     Query taskRef = FirebaseDatabase.getInstance().getReference().child("tasks").orderByKey().equalTo(userTask.getTaskId());
@@ -113,9 +116,9 @@ public class MyTaskFragment extends ListFragment {
                                 CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
                                 String taskId = taskSnapshot.getKey();
                                 IdTask idTask = new IdTask(taskId,task);
-                                mIdTaskList.add(idTask);
+                                newIdTaskList.add(idTask);
                             }
-                            mAdapter.notifyDataSetChanged();
+                            mAdapter.updateData(newIdTaskList);
                         }
 
                         @Override

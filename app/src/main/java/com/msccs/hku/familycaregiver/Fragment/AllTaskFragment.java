@@ -85,10 +85,16 @@ public class AllTaskFragment extends ListFragment {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        reloadAllTask();
+    }
+
     private void reloadAllTask() {
-        mIdTaskList.clear();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference inGroupRef = FirebaseDatabase.getInstance().getReference("inGroup").child(currentUserId);
+        final ArrayList<IdTask> newIdTaskList = new ArrayList<IdTask>();
         inGroupRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -110,9 +116,9 @@ public class AllTaskFragment extends ListFragment {
                                         for (DataSnapshot taskSnapshot : dataSnapshot2.getChildren()) {
                                             String taskId = taskSnapshot.getKey();
                                             CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
-                                            mIdTaskList.add(new IdTask(taskId, task));
+                                            newIdTaskList.add(new IdTask(taskId,task));
                                         }
-                                        mAdapter.notifyDataSetChanged();
+                                        mAdapter.updateData(newIdTaskList);
                                     }
 
                                     @Override
