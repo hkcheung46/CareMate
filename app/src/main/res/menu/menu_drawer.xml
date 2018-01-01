@@ -9,6 +9,15 @@
         </menu>
     </item>
 
+    <item android:title="@string/polling">
+        <menu>
+            <item
+                android:id="@+id/pollingNavItem"
+                android:icon="@drawable/ic_poll_black_24dp"
+                android:title="@string/polling" />
+        </menu>
+    </item>
+
     <item android:title="@string/groups">
         <menu>
             <item

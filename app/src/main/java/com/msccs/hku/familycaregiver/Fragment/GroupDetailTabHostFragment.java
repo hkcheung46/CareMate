@@ -34,6 +34,7 @@ public class GroupDetailTabHostFragment extends Fragment {
 
         mTabLayout = (TabLayout) view.findViewById(R.id.sliding_tabs);
         mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tasks).toUpperCase()));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.polling).toUpperCase()));
         mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.groupMember).toUpperCase()));
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

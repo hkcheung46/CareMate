@@ -36,6 +36,26 @@
         <activity android:name=".Activity.TaskDetailActivity"></activity>
         <activity android:name=".Activity.CalendarActivity"/>
         <activity android:name=".Activity.DayViewActivity"/>
+        <activity android:name=".Activity.CreateNewPollingActivity"></activity>
+        <activity android:name=".Activity.PollingDetailActivity"></activity>
+        <activity android:name=".Activity.PollingResultActivity"></activity>
+        <activity android:name=".Activity.VoterListActivity"></activity>
+
+        <!-- [START firebase_service] -->
+        <service
+            android:name=".Services.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+        <!-- [END firebase_service] -->
+        <!-- [START firebase_iid_service] -->
+        <service
+            android:name=".Services.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -19,6 +19,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.Model.GroupInvitation;
 import com.msccs.hku.familycaregiver.R;
@@ -112,6 +113,9 @@ public class InvitationListFragment extends ListFragment {
         DatabaseReference ref = inGroupRef.push();
         ref.child("groupId").setValue(groupId);
         ref.child("groupName").setValue(groupName);
+
+        //Subscribe Notification
+        FirebaseMessaging.getInstance().subscribeToTopic(groupId);
     }
 
 

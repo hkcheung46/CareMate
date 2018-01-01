@@ -86,7 +86,7 @@ public class ToDoListAdapter extends BaseAdapter {
         pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Glide.with(context).using(new FirebaseImageLoader()).load(pathReference).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+                Glide.with(context).using(new FirebaseImageLoader()).load(pathReference).asBitmap().centerCrop().into(new BitmapImageViewTarget(groupImageView){
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
@@ -102,7 +102,7 @@ public class ToDoListAdapter extends BaseAdapter {
             public void onFailure(@NonNull Exception exception) {
                 // File not found
 
-                Glide.with(context).load(R.drawable.ic_account_circle_white_24dp).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+                Glide.with(context).load(R.drawable.ic_account_circle_white_24dp).asBitmap().centerCrop().into(new BitmapImageViewTarget(groupImageView){
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);

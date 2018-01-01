@@ -18,13 +18,15 @@ import java.util.ArrayList;
  */
 
 public class TaskAdapter extends BaseAdapter {
+
+    private Context context;
+    private ArrayList<CustomTasks> customTasksList;
+
+
     public TaskAdapter(Context context, ArrayList<CustomTasks> customTasksList) {
         this.context = context;
         this.customTasksList = customTasksList;
     }
-
-    private Context context;
-    private ArrayList<CustomTasks> customTasksList;
 
     @Override
     public int getCount() {

@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.msccs.hku.familycaregiver.Fragment.GroupMemberListFragment;
+import com.msccs.hku.familycaregiver.Fragment.GroupPollingListFragment;
 import com.msccs.hku.familycaregiver.Fragment.GroupTaskListFragment;
 
 /**
@@ -35,9 +36,15 @@ public class GroupDetailPagerAdapter extends FragmentStatePagerAdapter {
             case 1:
                 Bundle args2 = new Bundle();
                 args2.putString("groupId",mGroupId);
-                GroupMemberListFragment tab2 = new GroupMemberListFragment();
+                GroupPollingListFragment tab2 = new GroupPollingListFragment();
                 tab2.setArguments(args2);
                 return tab2;
+            case 2:
+                Bundle args3 = new Bundle();
+                args3.putString("groupId",mGroupId);
+                GroupMemberListFragment tab3 = new GroupMemberListFragment();
+                tab3.setArguments(args3);
+                return tab3;
             default:
                 return null;
         }

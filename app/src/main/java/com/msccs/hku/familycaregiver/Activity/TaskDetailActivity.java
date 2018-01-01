@@ -361,9 +361,7 @@ public class TaskDetailActivity extends AppCompatActivity {
         });
 
         return tcs.getTask();
-    }
-
-    ;
+    };
 
 
     private Task<String> addEntryToAssignedUserTask() {

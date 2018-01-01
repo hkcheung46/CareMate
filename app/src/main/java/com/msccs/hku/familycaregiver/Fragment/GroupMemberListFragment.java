@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.Model.LocalContacts;
 import com.msccs.hku.familycaregiver.R;
@@ -168,6 +169,7 @@ public class GroupMemberListFragment extends ListFragment {
     //This 2 method as I want to ensure both query are completed before activity is killed, avoid causing data issue.
     public Task<String> removeSelfFromGroupMember() {
         final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(mGroupId);
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference groupMemRef = FirebaseDatabase.getInstance().getReference("groupMem").child(mGroupId);
         Query groupMemQuery = groupMemRef.orderByChild("uid").equalTo(uid);

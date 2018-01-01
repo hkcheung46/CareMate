@@ -286,6 +286,10 @@ public class CreateNewTaskActivity extends AppCompatActivity {
             isValid=false;
         }
 
+        if (mCreateMode.equals("g") && mTaskGroupSpinner.getSelectedItem()==null){
+            isValid=false;
+        }
+
         if (mTaskTypeRgp.getCheckedRadioButtonId()==-1){
             isValid=false;
         }

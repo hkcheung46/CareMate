@@ -2,7 +2,6 @@ package com.msccs.hku.familycaregiver.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -39,7 +38,7 @@ public class MyTaskFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_my_task, container, false);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh1);
         return v;
     }
 
@@ -62,7 +61,6 @@ public class MyTaskFragment extends ListFragment {
                         for (DataSnapshot taskSnapshot:dataSnapshot.getChildren()){
                             Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
                             intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID,taskId);
-
                             startActivity(intent);
                         }
                     }
@@ -81,7 +79,6 @@ public class MyTaskFragment extends ListFragment {
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
                         reloadMyTask();

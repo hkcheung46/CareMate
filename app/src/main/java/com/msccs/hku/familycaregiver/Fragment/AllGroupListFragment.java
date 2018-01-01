@@ -68,7 +68,7 @@ public class AllGroupListFragment extends ListFragment {
                 pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Glide.with(AllGroupListFragment.this).using(new FirebaseImageLoader()).load(pathReference).asBitmap().into(new BitmapImageViewTarget(groupImageView){
+                        Glide.with(AllGroupListFragment.this).using(new FirebaseImageLoader()).load(pathReference).asBitmap().centerCrop().into(new BitmapImageViewTarget(groupImageView){
                             @Override
                             protected void setResource(Bitmap resource) {
                                 RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(getActivity().getResources(), resource);

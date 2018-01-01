@@ -1,10 +1,12 @@
 package com.msccs.hku.familycaregiver.Activity;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
@@ -22,7 +24,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,11 +40,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.msccs.hku.familycaregiver.Fragment.GroupsTabHostFragment;
+import com.msccs.hku.familycaregiver.Fragment.PollingTabHostFragment;
 import com.msccs.hku.familycaregiver.Fragment.SettingsFragment;
 import com.msccs.hku.familycaregiver.R;
 import com.msccs.hku.familycaregiver.Fragment.ToDoListTabHostFragment;
@@ -55,13 +55,11 @@ import butterknife.OnClick;
 //This is the class controlling the main page after login
 //The individual behaviour of each function is handled inside each fragment
 
-public class SignedInActivity extends AppCompatActivity implements ToDoListTabHostFragment.onToDoListTabSelectedListener, GroupsTabHostFragment.onGroupsTabSelectedListener, SettingsFragment.OnSettingsFragmentResumeListener {
+public class SignedInActivity extends AppCompatActivity implements PollingTabHostFragment.onPollingTabSelectedListener,ToDoListTabHostFragment.onToDoListTabSelectedListener, GroupsTabHostFragment.onGroupsTabSelectedListener, SettingsFragment.OnSettingsFragmentResumeListener{
 
 
     private TextView mLoginUserPhoneTxtView;
-    private TextView mLoginUserNameTxtView;
     private ImageView mLoginUserPhotoImgView;
-    private DatabaseReference mDatabase;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
 
@@ -74,8 +72,6 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
 
-
-
     @BindView(R.id.id_nv_menu)
     NavigationView mNavigationView;
 
@@ -84,6 +80,9 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
 
     @BindView(R.id.add_new_task_fab)
     FloatingActionButton mNewTaskFab;
+
+    @BindView(R.id.add_new_polling_fab)
+    FloatingActionButton mNewPollingFab;
 
     @OnClick(R.id.add_new_task_fab)
     public void onAddNewTaskFABClick(View v){
@@ -106,6 +105,13 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
     @OnClick(R.id.add_new_group_fab)
     public void onAddNewGroupFABClick(View v) {
         Intent intent = new Intent(SignedInActivity.this, NewGroupActivity.class);
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.add_new_polling_fab)
+    public void onAddNewPollingFABClick(View v){
+        Intent intent = new Intent(SignedInActivity.this,CreateNewPollingActivity.class);
+        intent.putExtra(CreateNewPollingActivity.EXTRA_CREATE_NEW_POLL_MODE,"g");
         startActivity(intent);
     }
 
@@ -162,6 +168,15 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
                         transaction.commit();
                         return true;
 
+                    case R.id.pollingNavItem:
+                        mDrawerLayout.closeDrawers();
+                        transaction = getSupportFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container, new PollingTabHostFragment(), null);
+                        transaction.addToBackStack(null);
+                        transaction.commit();
+                        return true;
+
+
                     case R.id.groupsNavItem:
                         mDrawerLayout.closeDrawers();
                         transaction = getSupportFragmentManager().beginTransaction();
@@ -169,6 +184,7 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
                         transaction.addToBackStack(null);
                         transaction.commit();
                         return true;
+
 
                     case R.id.settingsNavItem:
                         mDrawerLayout.closeDrawers();
@@ -215,7 +231,6 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
 
         //Ask for reading local contact permission
         if (ContextCompat.checkSelfPermission(SignedInActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            Log.d("testing", "i am fired");
             //Handle the case in which the users have replied not grant the read local contacts to the application, show the rationale and ask him to grant
             if (ActivityCompat.shouldShowRequestPermissionRationale(SignedInActivity.this, Manifest.permission.READ_CONTACTS)) {
                 Toast.makeText(SignedInActivity.this, "Please go to app settings to grant the READ CONTACTS PERMISSION", Toast.LENGTH_LONG).show();
@@ -227,7 +242,6 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
         }
     }
 
-
     public void setActionBarTitle(String title) {
         getSupportActionBar().setTitle(title);
     }
@@ -237,8 +251,10 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
         //mode: t -->task -->always show add_task floating action button
         //mode: g -->groups & invitation -->shows add group floating action button , maybe other button later
         //mode: s -->settings -->show save floating action button
+        //mode: p -->polling -->show add_polling floating action button
         switch (mode) {
             case 't':
+                mNewPollingFab.hide();
                 mGroupAddFab.hide();
                 mSaveSettingsFab.hide();
                 mNewTaskFab.show();
@@ -247,19 +263,28 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
                 switch (position) {
                     case 0:
                         //groups tab -->show groups fab
+                        mNewPollingFab.hide();
                         mNewTaskFab.hide();
                         mSaveSettingsFab.hide();
                         mGroupAddFab.show();
                         break;
                     case 1:
                         //pending invitation tab --> hide all fab
+                        mNewPollingFab.hide();
                         mNewTaskFab.hide();
                         mSaveSettingsFab.hide();
                         mGroupAddFab.hide();
                         break;
                 }
                 break;
+            case 'p':
+                mNewTaskFab.hide();
+                mSaveSettingsFab.hide();
+                mGroupAddFab.hide();
+                mNewPollingFab.show();
+                break;
             case 's':
+                mNewPollingFab.hide();
                 mGroupAddFab.hide();
                 mNewTaskFab.hide();
                 mSaveSettingsFab.show();
@@ -279,6 +304,11 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
     @Override
     public void onGroupTabSelected(int position) {
         animateFab('g', position);
+    }
+
+    @Override
+    public void onPollingTabSelected(int position) {
+        animateFab('p', position);
     }
 
     @Override
@@ -316,8 +346,6 @@ public class SignedInActivity extends AppCompatActivity implements ToDoListTabHo
     public void showSnackbar(@StringRes int messageRes) {
         Snackbar.make(mRootView, messageRes, Snackbar.LENGTH_LONG).show();
     }
-
-
 
 
 

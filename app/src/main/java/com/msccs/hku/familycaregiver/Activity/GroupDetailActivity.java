@@ -19,6 +19,7 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
     private String mGroupName;
     private String mGroupId;
     private FloatingActionButton mAddMemberFab;
+    private FloatingActionButton mAddNewPollingFab;
     private FloatingActionButton mAddNewTaskFab;
 
     @Override
@@ -33,9 +34,10 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         //setup and initialize the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("GROUP: "+ mGroupName);
+        getSupportActionBar().setTitle(mGroupName+"'s caring group");
 
         mAddMemberFab = (FloatingActionButton) findViewById(R.id.add_member_fab);
+        mAddNewPollingFab = (FloatingActionButton) findViewById(R.id.add_new_polling_fab);
         mAddNewTaskFab = (FloatingActionButton) findViewById(R.id.add_new_task_fab);
 
         mAddMemberFab.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +63,16 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
             }
         });
 
+        mAddNewPollingFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupDetailActivity.this,CreateNewPollingActivity.class);
+                intent.putExtra(CreateNewPollingActivity.EXTRA_CREATE_NEW_POLL_GROUP_ID,mGroupId);
+                intent.putExtra(CreateNewPollingActivity.EXTRA_CREATE_NEW_POLL_MODE,"s");
+                startActivity(intent);
+            }
+        });
+
 
         GroupDetailTabHostFragment groupDetailTabHostFragment = new GroupDetailTabHostFragment();
         Bundle bundle = new Bundle();
@@ -81,10 +93,17 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         switch (position){
             case 0:
                 mAddMemberFab.hide();
+                mAddNewPollingFab.hide();
                 mAddNewTaskFab.show();
                 break;
             case 1:
+                mAddMemberFab.hide();
                 mAddNewTaskFab.hide();
+                mAddNewPollingFab.show();
+                break;
+            case 2:
+                mAddNewTaskFab.hide();
+                mAddNewPollingFab.hide();
                 mAddMemberFab.show();
                 break;
         }

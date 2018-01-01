@@ -3,6 +3,7 @@ package com.msccs.hku.familycaregiver.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +30,13 @@ public class GroupTaskListFragment extends ListFragment {
     private String mGroupId;
     private ArrayList<IdTask> idTaskList;
     private GroupTaskListAdapter mAdapter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_group_task, container, false);
+        View v = inflater.inflate(R.layout.fragment_group_task, container, false);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        return v;
     }
 
     @Override
@@ -47,8 +51,43 @@ public class GroupTaskListFragment extends ListFragment {
         mAdapter = new GroupTaskListAdapter(getContext(), idTaskList);
         getListView().setAdapter(mAdapter);
 
-        //Get the task inside the group, add them to the arraylist which is later used for display purpose
-        Query taskRef = FirebaseDatabase.getInstance().getReference().child("tasks").orderByChild("belongToGroupId").equalTo(mGroupId);
+        // This part is for handle the swap to refresh
+        mSwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        reloadGroupTaskList(mGroupId);
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
+
+
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String taskId = mAdapter.getCustomTaskId(position);
+                Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
+
+                intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        reloadGroupTaskList(mGroupId);
+    }
+
+    private void reloadGroupTaskList(String groupId){
+        mAdapter.removeData();
+        Query taskRef = FirebaseDatabase.getInstance().getReference().child("tasks").orderByChild("belongToGroupId").equalTo(groupId);
+        ArrayList<IdTask> newIdPollingList = new ArrayList<IdTask>();
+
         taskRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -70,18 +109,8 @@ public class GroupTaskListFragment extends ListFragment {
 
             }
         });
-
-        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String taskId = mAdapter.getCustomTaskId(position);
-                Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
-
-                intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId);
-                startActivity(intent);
-            }
-        });
     }
+
 
     //This function for sorting purpose (pending>assigned>completed, if same status, the earlier start date one is higher position
     public void sortByTaskStatusStartDate() {

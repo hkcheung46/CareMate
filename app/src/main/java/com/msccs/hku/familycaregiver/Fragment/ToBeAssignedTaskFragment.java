@@ -36,11 +36,12 @@ public class ToBeAssignedTaskFragment extends ListFragment {
     private ArrayList<IdTask> mIdTaskList = new ArrayList<IdTask>();
     private ToDoListAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipeRefreshLayout mSwipeRefreshLayoutEmpty;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_to_be_assigned, container, false);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh1);
         return v;
     }
 
@@ -63,7 +64,6 @@ public class ToBeAssignedTaskFragment extends ListFragment {
                     }
                 }
         );
-
 
         this.getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

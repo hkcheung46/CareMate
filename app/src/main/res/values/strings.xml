@@ -92,6 +92,45 @@
     <string name="taskOwner">Task Owner</string>
     <string name="taskStatus">Task Status</string>
     <string name="taskOwnership">Task Ownership</string>
+    <string name="userSettingsUpdatedSuccess">User\'s settings updated successfully</string>
+    <string name="polling">Polling</string>
+    <string name="activePolling">ACTIVE</string>
+    <string name="closedPolling">CLOSED</string>
+    <string name="noActivePolling">No Active Polling</string>
+    <string name="noClosedPolling">No Closed Polling</string>
+    <string name="initiateNewPolling">Initiate New Polling</string>
+    <string name="pollingQuestion">Polling Question</string>
+    <string name="pollingGroup">Polling Group</string>
+    <string name="pollingSetup">Polling Setup</string>
+    <string name="singleVotesOnly">Single Vote Only</string>
+    <string name="multipleVotes">Multiple Vote</string>
+    <string name="votingMode">Voting Mode</string>
+    <string name="votingOptions">Voting Options</string>
+    <string name="noOfOptions">Number of Options:</string>
+    <string name="option1">Option 1</string>
+    <string name="option2">Option 2</string>
+    <string name="option3">Option 3</string>
+    <string name="option4">Option 4</string>
+    <string name="option5">Option 5</string>
+    <string name="pollingQNotEmptyValidation">Polling question is mandatory</string>
+    <string name="pollingDetail">Polling Detail</string>
+    <string name="endPolling">End Polling</string>
+    <string name="submit">Submit</string>
+    <string name="confirmClosePolling">Confirm close polling?</string>
+    <string name="pollingResult">Polling Result</string>
+    <string name="noVoterYet">No Voter for this option yet</string>
+    <string name="noPolling">No Polling Yet</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="gettingStart">Getting started</string>
+
+    <string-array name="noOfVotingOptions">
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+
+
     <!-- DayView -->
     <string name="time_12am">12 am</string>
     <string name="time_1am">1 am</string>
@@ -120,4 +159,5 @@
     <string name="time_24pm">24 pm</string>
     <string name="birth_day">I am going to birthday party</string>
     <string name="current_day_date">8 October, 2016</string>
+    <string name="default_notification_channel_name" />
 </resources>

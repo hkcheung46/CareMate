@@ -17,17 +17,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.msccs.hku.familycaregiver.Activity.InviteGroupMemberActivityForNewGp;
 import com.msccs.hku.familycaregiver.Activity.SignedInActivity;
 import com.msccs.hku.familycaregiver.R;
@@ -170,7 +174,13 @@ public class SettingsFragment extends Fragment {
             String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
             FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
             StorageReference thumbnailRef = firebaseStorage.getReference().child("userPhoto").child(currentUserUid);
-            thumbnailRef.putFile(bitmapToUriConverter(mGroupPhoto));
+            thumbnailRef.putFile(bitmapToUriConverter(mGroupPhoto)).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(getActivity(),R.string.userSettingsUpdatedSuccess,Toast.LENGTH_SHORT).show();
+                    ((SignedInActivity)getActivity()).updateUserDisplayInfo();
+                }
+            });
         }
     }
 

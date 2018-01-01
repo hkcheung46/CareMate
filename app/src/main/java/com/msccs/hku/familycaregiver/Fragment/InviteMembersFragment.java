@@ -117,9 +117,9 @@ public class InviteMembersFragment extends Fragment {
         FirebaseDatabase.getInstance().getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot userInfoMapSnapshot : dataSnapshot.getChildren()) {
-                    String phoneNum = userInfoMapSnapshot.getValue(CustomFirebaseUser.class).getTelNum();
-                    String uid = userInfoMapSnapshot.getValue(CustomFirebaseUser.class).getUID();
+                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                    String phoneNum = userSnapshot.getValue(CustomFirebaseUser.class).getTelNum();
+                    String uid = userSnapshot.getValue(CustomFirebaseUser.class).getUID();
                     if (!phoneNum.equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())) {
                         phoneUIDHashmap.put(phoneNum, uid);
                     }
@@ -150,8 +150,6 @@ public class InviteMembersFragment extends Fragment {
                                 }
                             }
 
-
-
                             //Attach the array adapter only after the to be displayed list is ready
                             if (mContactsListView.getAdapter() == null) {
                                 arrayAdapter = new ArrayAdapter<LocalContacts>(getActivity(), android.R.layout.simple_list_item_multiple_choice, android.R.id.text1, ToBeDisplayedList);
@@ -167,7 +165,6 @@ public class InviteMembersFragment extends Fragment {
                         }
                     });
                 }
-
 
                 if (mInviteMode.equals("n")) {
                     //Intentionally out the comparison code here, to ensure the comparison is started after both local contact list and firebase user list has been completely loaded

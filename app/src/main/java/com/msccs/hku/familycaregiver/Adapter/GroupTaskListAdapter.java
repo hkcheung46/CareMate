@@ -98,4 +98,9 @@ public class GroupTaskListAdapter  extends BaseAdapter {
         return idTaskList.get(position).getCustomTask();
     }
 
+    public void removeData() {
+        this.idTaskList.clear();
+        notifyDataSetChanged();
+    }
+
 }
