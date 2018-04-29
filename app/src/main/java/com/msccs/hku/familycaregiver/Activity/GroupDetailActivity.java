@@ -6,9 +6,17 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.msccs.hku.familycaregiver.Fragment.GroupDetailTabHostFragment;
+import com.msccs.hku.familycaregiver.Model.CustomTasks;
 import com.msccs.hku.familycaregiver.R;
 
 public class GroupDetailActivity extends AppCompatActivity implements GroupDetailTabHostFragment.onGroupDetailTabSelectedListener {
@@ -78,10 +86,30 @@ public class GroupDetailActivity extends AppCompatActivity implements GroupDetai
         Bundle bundle = new Bundle();
         bundle.putString("groupId",mGroupId);
         groupDetailTabHostFragment.setArguments(bundle);
-
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, groupDetailTabHostFragment, null);
         transaction.commit();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.group_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.menu_householdMonitoring:
+                Intent intent = new Intent(GroupDetailActivity.this,HomePlusActivity.class);
+                intent.putExtra(HomePlusActivity.EXTRA_GROUP_NAME,mGroupName);
+                intent.putExtra(HomePlusActivity.EXTRA_GROUP_ID,mGroupId);
+                startActivity(intent);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

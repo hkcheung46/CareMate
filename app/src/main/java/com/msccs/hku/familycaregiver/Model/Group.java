@@ -9,14 +9,14 @@ import java.util.Date;
 
 public class Group {
     private String elderName;
-    private Date birthday;
+    private long birthday;
 
 
     public Group(){
 
     }
 
-    public Group(String elderName, Date birthday) {
+    public Group(String elderName, long birthday) {
         this.elderName = elderName;
         this.birthday = birthday;
     }
@@ -29,11 +29,10 @@ public class Group {
         this.elderName = elderName;
     }
 
-    public Date getBirthday() {
+    public long getBirthday() {
         return birthday;
     }
-
-    public void setBirthday(Date birthday) {
+    public void setBirthday(long birthday) {
         this.birthday = birthday;
     }
 }

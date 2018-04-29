@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +33,9 @@ public class GroupDetailTabHostFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         String groupId = getArguments().getString("groupId");
 
+
         mTabLayout = (TabLayout) view.findViewById(R.id.sliding_tabs);
-        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tasks).toUpperCase()));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.taskEvent).toUpperCase()));
         mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.polling).toUpperCase()));
         mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.groupMember).toUpperCase()));
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
@@ -65,7 +67,6 @@ public class GroupDetailTabHostFragment extends Fragment {
 
             }
         });
-
     }
 
     //Interface for

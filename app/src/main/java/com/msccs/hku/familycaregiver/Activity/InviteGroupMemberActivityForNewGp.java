@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,17 +49,13 @@ import butterknife.OnClick;
 public class InviteGroupMemberActivityForNewGp extends AppCompatActivity {
 
     public final static String EXTRA_ELDERLY_NAME = "COM.MSCCS.HKU.FAMILYCAREGIVER.ELDERLYNAME";
-    public final static String EXTRA_BIRTHDAY_DAY = "COM.MSCCS.HKU.FAMILYCAREGIVER.BIRTHDAYDAY";
-    public final static String EXTRA_BIRTHDAY_MONTH = "COM.MSCCS.HKU.FAMILYCAREGIVER.BIRTHDAYMONTH";
-    public final static String EXTRA_BIRTHDAY_YEAR = "COM.MSCCS.HKU.FAMILYCAREGIVER.BIRTHDAYYEAR";
+    public final static String EXTRA_BIRTHDAY = "COM.MSCCS.HKU.FAMILYCAREGIVER.BIRTHDAY";
     public final static String EXTRA_ELDER_PHOTO="COM.MSCCS.HKU.FAMILYCAREGIVER.ELDERPHOTO";
 
     private String mElderlyName;
-    private int birthdayDay;
-    //Just a reminder, the birthday month here is always 1 less than actual, Jan=0,Dec=11
-    private int birthdayMonth;
-    private int birthdayYear;
+    private long mBirthday;
     private Bitmap elderlyImage;
+    //Just a reminder, the birthday month here is always 1 less than actual, Jan=0,Dec=11
 
     String currentUserPhoneNumber;
     Fragment currentFragment;
@@ -85,7 +82,7 @@ public class InviteGroupMemberActivityForNewGp extends AppCompatActivity {
                     }
 
                     //Add a call back functions here to trigger the insertion of values
-                    Group newGroup = new Group(mElderlyName, new Date(birthdayYear, birthdayMonth, birthdayDay));
+                    Group newGroup = new Group(mElderlyName, mBirthday);
                     CustomFirebaseUser currentUser = new CustomFirebaseUser(currentUserUid, currentUserPhoneNumber);
                     ArrayList toBeInvitedList = ((InviteMembersFragment) currentFragment).getToBeInvitedList();
                     //Adding this line here is because it is a async call, ensure the necessary data is derived from network call before inserting new database entry
@@ -118,9 +115,7 @@ public class InviteGroupMemberActivityForNewGp extends AppCompatActivity {
         Intent intent = getIntent();
         //GET THE TO-BE CREATED GROUP INFO FROM NEW GROUP ACTIVITY
         mElderlyName = intent.getStringExtra(EXTRA_ELDERLY_NAME);
-        birthdayDay = intent.getIntExtra(EXTRA_BIRTHDAY_DAY, 0);
-        birthdayMonth = intent.getIntExtra(EXTRA_BIRTHDAY_MONTH, 0);
-        birthdayYear = intent.getIntExtra(EXTRA_BIRTHDAY_YEAR, 0);
+        mBirthday = intent.getLongExtra(EXTRA_BIRTHDAY,0);
         elderlyImage = (Bitmap) intent.getParcelableExtra(EXTRA_ELDER_PHOTO);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

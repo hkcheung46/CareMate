@@ -21,13 +21,13 @@
     </android.support.design.widget.AppBarLayout>
 
     <ScrollView
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="?attr/actionBarSize"
             android:orientation="vertical"
             android:padding="8dp">
 
@@ -88,6 +88,42 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    style="?android:listSeparatorTextViewStyle"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:layout_marginTop="5dp"
+                    android:text="Event / Task"/>
+
+                <RadioGroup
+                    android:id="@+id/taskTypeRgp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/event_rbtn"
+                        android:text="@string/event"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <RadioButton
+                        android:id="@+id/task_rbtn"
+                        android:text="@string/task"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                </RadioGroup>
+
+
+            </LinearLayout>
 
 
             <TextView
@@ -95,14 +131,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="5dp"
-                android:layout_marginTop="20dp"
-                android:text="@string/taskType" />
+                android:layout_marginTop="5dp"
+                android:text="@string/importance" />
 
             <RadioGroup
-                android:id="@+id/taskTypeRgp"
+                android:id="@+id/importanceRgp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
                 <RadioButton
                     android:id="@+id/important_task_rbtn"
@@ -115,13 +151,13 @@
                     android:text="@string/casualTask"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-
+<!--
                 <RadioButton
                     android:id="@+id/reminder_task_rbtn"
                     android:text="@string/reminder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
-
+-->
             </RadioGroup>
 
             <TextView
@@ -136,21 +172,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-
+<!--
                 <Switch
                     android:id="@+id/allDaySwitch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingLeft="5dp"
                     android:text="@string/allDay" />
-
+-->
                 <LinearLayout
                     android:orientation="horizontal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:paddingTop="10dp">
+                    android:paddingTop="2dp">
 
                     <TextView
                         android:textColor="@color/black"
@@ -181,11 +217,12 @@
 
 
                 <LinearLayout
+                    android:id="@+id/endDateTimeLinearLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="5dp"
                     android:paddingEnd="5dp"
-                    android:paddingTop="10dp"
+                    android:paddingTop="2dp"
                     android:orientation="horizontal">
 
                     <TextView

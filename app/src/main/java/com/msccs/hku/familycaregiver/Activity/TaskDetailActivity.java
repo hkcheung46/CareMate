@@ -3,23 +3,33 @@ package com.msccs.hku.familycaregiver.Activity;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.android.gms.tasks.Tasks;
@@ -30,45 +40,60 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.Model.CustomTasks;
-import com.msccs.hku.familycaregiver.Model.LocalContacts;
+import com.msccs.hku.familycaregiver.Model.Group;
 import com.msccs.hku.familycaregiver.tempStructure.UserTask;
 import com.msccs.hku.familycaregiver.R;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
+
+import static android.view.View.GONE;
 
 public class TaskDetailActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 222;
+    public static final String EXTRA_TASK_ID = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_ID";
+    public static final String EXTRA_GROUP_ID = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_GROUP_ID";
 
-    public static String EXTRA_TASK_ID = "COM.MSCCS.HKU.FAMILYCAREGIVER.EXTRA_TASK_ID";
-
+    private TextView mElderNameLbl;
     private TextView mTaskNameLbl;
     private TextView mTaskDescriptionLbl;
-    private TextView mTaskTypeLbl;
+    private TextView mImportanceLbl;
     private TextView mStartDateTxtView;
     private TextView mStartTimeTxtView;
     private TextView mEndDateTxtView;
     private TextView mEndTimeTxtView;
-    private TextView mIsAllDayEventLbl;
+    private ImageView mGroupImageView;
     private TextView mTaskStatusLbl;
-    private LinearLayout mTaskOwnerLinearLayout;
+    private TextView mViewTaskOwnerLbl;
     private LinearLayout mTaskOwnerBtnLinearLayout;
-
+    private LinearLayout mEndDateDisappearSection;
     private TextView mTakeUpBtn;
-    private TextView mWithdrawBtn;
+    private TextView mWithdrawEventBtn;
     private TextView mMarkAsCompleteBtn;
+    private TextView mEventTaskTypeLbl;
+    private LinearLayout mEventJoinerButtonLinearLayout;
+    private TextView mJoinBtn;
+    private TextView mEventCompleteBtn;
+    private TextView mWithdrawTaskBtn;
+
 
     private String mTaskId;
+    private String mGroupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_task_detail);
+        setContentView(R.layout.activity_task_detail2);
+
+        //setup and initialize the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         //After android 6.0 need to get the run time permission
         //Check does permission already granted
@@ -83,39 +108,89 @@ public class TaskDetailActivity extends AppCompatActivity {
             }
         }
 
-        //Get the task information from the intent
+        //Get the information from the intent
         mTaskId = getIntent().getStringExtra(EXTRA_TASK_ID);
+        mGroupId = getIntent().getStringExtra(EXTRA_GROUP_ID);
+        mEventJoinerButtonLinearLayout = findViewById(R.id.eventJoinerBtnSet);
+        mJoinBtn = findViewById(R.id.joinBtn);
+        mGroupImageView = findViewById(R.id.groupImageView);
+        mViewTaskOwnerLbl = findViewById(R.id.viewTaskOwnerListLbl);
+        mElderNameLbl = findViewById(R.id.elderNameLbl);
+        mTaskNameLbl = findViewById(R.id.taskNameLbl);
+        mTaskDescriptionLbl = findViewById(R.id.taskDescriptionTbx);
+        mImportanceLbl = findViewById(R.id.taskTypeLbl);
+        mStartDateTxtView = findViewById(R.id.startDateTxtView);
+        mStartTimeTxtView = findViewById(R.id.startTimeTxtView);
+        mEndDateTxtView = findViewById(R.id.endDateTxtView);
+        mEndTimeTxtView = findViewById(R.id.endTimeTxtView);
+        mTakeUpBtn = findViewById(R.id.takeUpTaskBtn);
+        mWithdrawTaskBtn = findViewById(R.id.withdrawTaskBtn);
+        mMarkAsCompleteBtn = findViewById(R.id.markCompleteBtn);
+        mTaskStatusLbl = findViewById(R.id.taskStatusLbl);
+        mTaskOwnerBtnLinearLayout = findViewById(R.id.taskOwnerBtnSet);
+        mEventTaskTypeLbl = findViewById(R.id.eventTaskTypeLbl);
+        mEndDateDisappearSection = findViewById(R.id.endDateDisappearSection);
+        mEventCompleteBtn = findViewById(R.id.markEventCompleteBtn);
+        mWithdrawEventBtn = findViewById(R.id.withdrawEventBtn);
 
-        //setup and initialize the toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.taskDetail);
+        /**
+         //This line is for getting the task owner list
+         FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).addValueEventListener(new ValueEventListener() {
+        @Override public void onDataChange(DataSnapshot dataSnapshot) {
+        initTaskOwnerList();
+        }
 
-        mTaskNameLbl = (TextView) findViewById(R.id.taskNameTbx);
-        mTaskDescriptionLbl = (TextView) findViewById(R.id.taskDescriptionTbx);
-        mTaskTypeLbl = (TextView) findViewById(R.id.taskTypeLbl);
-        mStartDateTxtView = (TextView) findViewById(R.id.startDateTxtView);
-        mStartTimeTxtView = (TextView) findViewById(R.id.startTimeTxtView);
-        mEndDateTxtView = (TextView) findViewById(R.id.endDateTxtView);
-        mEndTimeTxtView = (TextView) findViewById(R.id.endTimeTxtView);
-        mTakeUpBtn = (TextView) findViewById(R.id.takeUpTaskBtn);
-        mWithdrawBtn = (TextView) findViewById(R.id.withdrawTaskBtn);
-        mMarkAsCompleteBtn = (TextView) findViewById(R.id.markCompleteBtn);
+        @Override public void onCancelled(DatabaseError databaseError) {
 
-        mIsAllDayEventLbl = (TextView) findViewById(R.id.isAllDayEventLbl);
-        mTaskStatusLbl = (TextView) findViewById(R.id.taskStatusLbl);
-        mTaskOwnerLinearLayout = (LinearLayout) findViewById(R.id.ownerListLinearLayout);
-        mTaskOwnerBtnLinearLayout = (LinearLayout) findViewById(R.id.taskOwnerBtnSet);
+        }
+        });
+         **/
 
-        FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference("group").orderByKey().equalTo(mGroupId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                initTaskOwnerList();
+                for (DataSnapshot groupSnapshot : dataSnapshot.getChildren()) {
+                    Group group = groupSnapshot.getValue(Group.class);
+                    mElderNameLbl.setText(group.getElderName());
+                }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+
+
+        //StorageReference storageReference = storage.getReference();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl("gs://family-care-giver.appspot.com");
+        final StorageReference pathReference = storageReference.child("groupThumbNail/" + mGroupId);
+
+        pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(TaskDetailActivity.this).using(new FirebaseImageLoader()).load(pathReference).asBitmap().centerCrop().into(new BitmapImageViewTarget(mGroupImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(TaskDetailActivity.this.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        mGroupImageView.setImageDrawable(circularBitmapDrawable);
+                    }
+                });
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // File not found
+                Glide.with(TaskDetailActivity.this).load(R.drawable.ic_account_circle_white_24dp).asBitmap().centerCrop().into(new BitmapImageViewTarget(mGroupImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(TaskDetailActivity.this.getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        mGroupImageView.setImageDrawable(circularBitmapDrawable);
+                        mGroupImageView.setBackground(TaskDetailActivity.this.getResources().getDrawable(R.drawable.round_grey_oval));
+                    }
+                });
             }
         });
 
@@ -126,33 +201,47 @@ public class TaskDetailActivity extends AppCompatActivity {
                     CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
                     String taskName = task.getTaskName();
                     String taskDescription = task.getTaskDescription();
-                    String taskType = task.getTaskType();
-                    Boolean isAllDayEvent = task.isAllDayEvent();
-                    Date taskStartDate = task.getTaskStartDate();
-                    Date taskEndDate = task.getTaskEndDate();
+                    String importance = task.getImportance();
+                    //Boolean isAllDayEvent = task.isAllDayEvent();
+                    double taskStartDate = task.getTaskStartDate();
+                    double taskEndDate = task.getTaskEndDate();
                     String taskStatus = task.getStatus();
+                    String eventTaskType = task.getTaskEventType();
 
-                    //initialize the widget using the value of the task
                     mTaskNameLbl.setText(taskName);
-                    mTaskDescriptionLbl.setText(taskDescription);
-                    switch (taskType) {
+                    //initialize the widget using the value of the task
+                    if (!taskDescription.trim().equals("")) {
+                        mTaskDescriptionLbl.setText(taskDescription);
+                    } else {
+                        mTaskDescriptionLbl.setText(R.string.noDescription);
+                    }
+
+                    switch (eventTaskType) {
+                        case "E":
+                            mEventTaskTypeLbl.setText(R.string.event);
+                            mViewTaskOwnerLbl.setText("View event joiner list");
+                            mEndDateDisappearSection.setVisibility(View.VISIBLE);
+                            break;
+                        case "T":
+                            mEventTaskTypeLbl.setText(R.string.task);
+                            mEndDateDisappearSection.setVisibility(GONE);
+                            break;
+                    }
+                    ;
+
+                    switch (importance) {
+
                         case "c":
-                            mTaskTypeLbl.setText(R.string.casualTask);
+                            mImportanceLbl.setText(R.string.casualTask);
                             break;
                         case "i":
-                            mTaskTypeLbl.setText(R.string.importantTask);
+                            mImportanceLbl.setText(R.string.importantTask);
                             break;
                         case "r":
-                            mTaskTypeLbl.setText(R.string.reminder);
+                            mImportanceLbl.setText(R.string.reminder);
                             break;
                         default:
                             break;
-                    }
-
-                    if (isAllDayEvent) {
-                        mIsAllDayEventLbl.setText(R.string.yes);
-                    } else {
-                        mIsAllDayEventLbl.setText(R.string.no);
                     }
 
                     SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd-MM-yyyy");
@@ -165,28 +254,72 @@ public class TaskDetailActivity extends AppCompatActivity {
 
                     String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                    if (taskStatus.equals("C")) {
-                        mTakeUpBtn.setVisibility(View.GONE);
-                        mTaskOwnerBtnLinearLayout.setVisibility(View.GONE);
-                    } else {
-                        Query userTaskRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserId).child("Assigned").orderByChild("taskId").equalTo(mTaskId);
-                        userTaskRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                if (!dataSnapshot.exists()) {
-                                    mTakeUpBtn.setVisibility(View.VISIBLE);
-                                    mTaskOwnerBtnLinearLayout.setVisibility(View.GONE);
-                                } else {
-                                    mTakeUpBtn.setVisibility(View.GONE);
-                                    mTaskOwnerBtnLinearLayout.setVisibility(View.VISIBLE);
-                                }
-                            }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                    switch (eventTaskType) {
+                        case "E":
+                            Log.d("debug", "event");
+                            if (taskStatus.equals("C")) {
+                                //Completed event -->N button should be visible, but allow to view the joiner list
+                                mTakeUpBtn.setVisibility(GONE);
+                                mJoinBtn.setVisibility(GONE);
+                                mTaskOwnerBtnLinearLayout.setVisibility(GONE);
+                                mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                                mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                            } else if (taskStatus.equals("N")) {
+                                //New event, then have to check did the user already join the event
+                                Query userTaskRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserId).child("Pending").orderByChild("taskId").equalTo(mTaskId);
+                                userTaskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (!dataSnapshot.exists()) {
+                                            //if they have not joined the event
+                                            //show up join button, hide the button set for already join person (withdraw and complete btn hidden)
+                                            mJoinBtn.setVisibility(View.VISIBLE);
+                                            mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                            mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                                        } else {
+                                            // if they have already joined the event
+                                            //hide join button, show the button set for already join person (withdraw and complete btn hidden)
+                                            mJoinBtn.setVisibility(GONE);
+                                            mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                            mEventJoinerButtonLinearLayout.setVisibility(View.VISIBLE);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
 
                             }
-                        });
+                            break;
+                        case "T":
+                            Log.d("debug", "task");
+                            if (taskStatus.equals("C")) {
+                                //Completed task
+                                //show up ta=ke up button, hide join button, show view task owner button, hide button set the task owner & event joiner
+                                mTakeUpBtn.setVisibility(GONE);
+                                mJoinBtn.setVisibility(GONE);
+                                mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                mTaskOwnerBtnLinearLayout.setVisibility(GONE);
+                                mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                            } else if (taskStatus.equals("N")) {
+                                //New Task (PENDING)
+                                mTakeUpBtn.setVisibility(View.VISIBLE);
+                                mJoinBtn.setVisibility(GONE);
+                                mViewTaskOwnerLbl.setVisibility(GONE);
+                                mTaskOwnerBtnLinearLayout.setVisibility(View.GONE);
+                                mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                            } else if (taskStatus.equals("A")) {
+                                //Assigned Task (Assigned)
+                                mTakeUpBtn.setVisibility(View.GONE);
+                                mJoinBtn.setVisibility(GONE);
+                                mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                mTaskOwnerBtnLinearLayout.setVisibility(View.VISIBLE);
+                                mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                            }
+                            break;
                     }
 
                     switch (taskStatus) {
@@ -203,12 +336,29 @@ public class TaskDetailActivity extends AppCompatActivity {
                             //initTaskOwnerList();
                             break;
                     }
-
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        mJoinBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task<?>[] tasks = new Task[]{
+                        addCurrentUserToTaskAssignee(),
+                        addEntryToPendingUserTask()
+                };
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
+                            }
+                        });
 
             }
         });
@@ -219,6 +369,8 @@ public class TaskDetailActivity extends AppCompatActivity {
                 // 1) Set the task status as "assigned" in tasks json tree
                 // 2) Add the record of current user into the taskAssignee node
                 // 3) Add record to UserTask node
+
+
                 Task<?>[] tasks = new Task[]{
                         setTaskStatus("A"),
                         addCurrentUserToTaskAssignee(),
@@ -254,7 +406,26 @@ public class TaskDetailActivity extends AppCompatActivity {
         });
 
 
-        mWithdrawBtn.setOnClickListener(new View.OnClickListener() {
+        mEventCompleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Task<?>[] tasks = new Task[]{
+                        setTaskStatus("C"),
+                        removeEntryFromPendingUserTask(),
+                        addEntryToCompletedUserTask()
+                };
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
+                            }
+                        });
+            }
+        });
+
+
+        mWithdrawTaskBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 1. remove the entry from UserTask
@@ -275,70 +446,125 @@ public class TaskDetailActivity extends AppCompatActivity {
             }
         });
 
-    }
+        mWithdrawEventBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-    private void initTaskOwnerList() {
-        if (ContextCompat.checkSelfPermission(TaskDetailActivity.this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            final HashMap<String, LocalContacts> localContactsHashMap = getLocalContactsHashMap();
-            //Remove the existing list of contact person displayed before load
-            mTaskOwnerLinearLayout.removeAllViews();
-            DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
-            taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                        CustomFirebaseUser user = userSnapshot.getValue(CustomFirebaseUser.class);
-                        final String phoneNo = user.getTelNum();
-                        //If the whole tel code can be matched, use it, if not ignore the +XXX part
-                        LocalContacts contact = localContactsHashMap.get(phoneNo);
-                        if (contact == null) {
-                            contact = localContactsHashMap.get(phoneNo.substring(4));
-                        }
+                Task<?>[] tasks = new Task[]{
+                        removeEntryFromPendingUserTask(),
+                        removeTaskAssigneeMayChangeStatusToPending()
+                };
 
-                        TextView contactTxtView = new TextView(TaskDetailActivity.this);
-                        contactTxtView.setGravity(Gravity.END);
-                        if (phoneNo.equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())) {
-                            contactTxtView.setText(getString(R.string.me));
-                        } else if (contact != null) {
-                            contactTxtView.setText(contact.getContactsLocalDisplayName());
-                        } else {
-                            contactTxtView.setText(phoneNo);
-                        }
 
-                        //Enable user to click the contact person to dial him, will copy the phone number to dial screen
-                        contactTxtView.setOnClickListener(new View.OnClickListener() {
+                Tasks.whenAll(tasks).continueWithTask(new RollbackIfFailure())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onClick(View v) {
-                                Intent callIntent = new Intent(Intent.ACTION_DIAL);
-                                callIntent.setData(Uri.parse("tel:" + phoneNo));
-                                startActivity(callIntent);
+                            public void onComplete(@NonNull Task<Void> task) {
+                                finish();
                             }
                         });
-                        mTaskOwnerLinearLayout.addView(contactTxtView);
+            }
+        });
+
+        mViewTaskOwnerLbl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Start the activity for view the task owner list
+                Intent intent = new Intent(TaskDetailActivity.this, TaskOwnerListActivity.class);
+                intent.putExtra(TaskOwnerListActivity.EXTRA_GROUP_ID, mGroupId);
+                intent.putExtra(TaskOwnerListActivity.EXTRA_TASK_ID, mTaskId);
+                startActivity(intent);
+            }
+        });
+
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.task_detail_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_chat_room:
+                FirebaseDatabase.getInstance().getReference().child("tasks").orderByKey().equalTo(mTaskId).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
+                            Intent intent = new Intent(TaskDetailActivity.this, ChatRoomActivity.class);
+                            intent.putExtra(ChatRoomActivity.EXTRA_TASK_ID, mTaskId);
+                            intent.putExtra(ChatRoomActivity.EXTRA_GROUP_ID, mGroupId);
+                            startActivity(intent);
+                        }
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                }
-            });
+                    }
+                });
+                break;
+            case R.id.menu_attachment:
+                Intent intent = new Intent(TaskDetailActivity.this, AttachmentListActivity.class);
+                intent.putExtra(AttachmentListActivity.EXTRA_TASK_ID, mTaskId);
+                startActivity(intent);
+                break;
         }
+        return true;
     }
 
-
-    //Performance much better if user Hashmap instead of Arraylist
-    public HashMap<String, LocalContacts> getLocalContactsHashMap() {
-        HashMap<String, LocalContacts> s = new HashMap<>();
-        Cursor cursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
-        while (cursor.moveToNext()) {
-            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("\\s+", "");
-            s.put(phoneNumber, new LocalContacts(name, phoneNumber));
-        }
-        cursor.close();
-        return s;
-    }
+    /**
+     * private void initTaskOwnerList() {
+     * if (ContextCompat.checkSelfPermission(TaskDetailActivity.this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+     * final HashMap<String, LocalContacts> localContactsHashMap = getLocalContactsHashMap();
+     * //Remove the existing list of contact person displayed before load
+     * mTaskOwnerLinearLayout.removeAllViews();
+     * DatabaseReference taskRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId);
+     * taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+     *
+     * @Override public void onDataChange(DataSnapshot dataSnapshot) {
+     * for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+     * CustomFirebaseUser user = userSnapshot.getValue(CustomFirebaseUser.class);
+     * final String phoneNo = user.getTelNum();
+     * //If the whole tel code can be matched, use it, if not ignore the +XXX part
+     * LocalContacts contact = localContactsHashMap.get(phoneNo);
+     * if (contact == null) {
+     * contact = localContactsHashMap.get(phoneNo.substring(4));
+     * }
+     * <p>
+     * TextView contactTxtView = new TextView(TaskDetailActivity.this);
+     * contactTxtView.setTextSize(20);
+     * contactTxtView.setGravity(Gravity.END);
+     * if (phoneNo.equals(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())) {
+     * contactTxtView.setText(getString(R.string.me));
+     * } else if (contact != null) {
+     * contactTxtView.setText(contact.getContactsLocalDisplayName());
+     * } else {
+     * contactTxtView.setText(phoneNo);
+     * }
+     * <p>
+     * //Enable user to click the contact person to dial him, will copy the phone number to dial screen
+     * contactTxtView.setOnClickListener(new View.OnClickListener() {
+     * @Override public void onClick(View v) {
+     * Intent callIntent = new Intent(Intent.ACTION_DIAL);
+     * callIntent.setData(Uri.parse("tel:" + phoneNo));
+     * startActivity(callIntent);
+     * }
+     * });
+     * mTaskOwnerLinearLayout.addView(contactTxtView);
+     * }
+     * }
+     * @Override public void onCancelled(DatabaseError databaseError) {
+     * <p>
+     * }
+     * });
+     * }
+     * }
+     **/
 
 
     private Task<String> removeEntryFromAssignedUserTask() {
@@ -361,7 +587,57 @@ public class TaskDetailActivity extends AppCompatActivity {
         });
 
         return tcs.getTask();
-    };
+    }
+
+    private Task<String> removeEntryFromPendingUserTask() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query assignedUserTaskAlreadyExistQuery = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Pending").orderByChild("taskId").equalTo(mTaskId);
+        assignedUserTaskAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                    dataSnapshot1.getRef().setValue(null);
+                    tcs.setResult(null);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
+
+
+    private Task<String> addEntryToPendingUserTask() {
+        final TaskCompletionSource<String> tcs = new TaskCompletionSource<>();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        final String currentUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Query checkUserTaskAssignedAlreadyExistQuery = database.getReference("UserTask").child(currentUserUid).child("Pending").orderByChild("taskId").equalTo(mTaskId);
+        checkUserTaskAssignedAlreadyExistQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    DatabaseReference userTaskAssignedRef = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserUid).child("Pending");
+                    userTaskAssignedRef.push().setValue(new UserTask(currentUserUid, mTaskId));
+                    tcs.setResult(null);
+                } else {
+                    tcs.setException(new IllegalStateException());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                tcs.setException(new IOException("IOError", databaseError.toException()));
+            }
+        });
+
+        return tcs.getTask();
+    }
 
 
     private Task<String> addEntryToAssignedUserTask() {

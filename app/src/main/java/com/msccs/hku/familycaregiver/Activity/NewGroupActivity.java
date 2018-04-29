@@ -21,6 +21,8 @@ import android.provider.MediaStore;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -30,7 +32,10 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.msccs.hku.familycaregiver.R;
 
 import butterknife.BindView;
@@ -44,14 +49,9 @@ public class NewGroupActivity extends AppCompatActivity {
     private Button mBirthdayBtn;
     private ImageView mElderPhotoImageView;
     private EditText mElderlyNameTbx;
-    private int mYear, mMonth, mDay = 0;
     private Calendar mCalendar;
     Bitmap mElderlyImage;
     private FloatingActionButton mAddNewGroupFAB;
-
-    private byte[] byteArray;
-
-    //This is the include layout, bind it here
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -62,7 +62,15 @@ public class NewGroupActivity extends AppCompatActivity {
                 InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 mElderlyImage = BitmapFactory.decodeStream(imageStream);
                 mElderlyImage = getResizedBitmap(mElderlyImage, 200);
-                mElderPhotoImageView.setImageBitmap(mElderlyImage);
+                Glide.with(NewGroupActivity.this).load(imageUri).asBitmap().centerCrop().into(new BitmapImageViewTarget(mElderPhotoImageView) {
+                    @Override
+                    protected void setResource(Bitmap resource) {
+                        RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                        circularBitmapDrawable.setCircular(true);
+                        mElderPhotoImageView.setImageDrawable(circularBitmapDrawable);
+                        mElderPhotoImageView.setBackground(getResources().getDrawable(R.drawable.round_grey_oval));
+                    }
+                });
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -86,6 +94,23 @@ public class NewGroupActivity extends AppCompatActivity {
         mBirthdayBtn = (Button) findViewById(R.id.birthdayBtn);
         mAddNewGroupFAB = (FloatingActionButton) findViewById(R.id.fab);
         mCalendar = Calendar.getInstance();
+        mCalendar.set(Calendar.HOUR,0);
+        mCalendar.set(Calendar.MINUTE,0);
+        mCalendar.set(Calendar.SECOND,0);
+        mCalendar.set(Calendar.MILLISECOND,0);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd-MM-yyyy");
+        mBirthdayBtn.setText(dateFormat.format(mCalendar.getTime()));
+
+        Glide.with(NewGroupActivity.this).load(R.drawable.ic_account_circle_white_24dp).asBitmap().centerCrop().into(new BitmapImageViewTarget(mElderPhotoImageView) {
+            @Override
+            protected void setResource(Bitmap resource) {
+                RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), resource);
+                circularBitmapDrawable.setCircular(true);
+                mElderPhotoImageView.setImageDrawable(circularBitmapDrawable);
+                mElderPhotoImageView.setBackground(getResources().getDrawable(R.drawable.round_grey_oval));
+            }
+        });
+
         mBirthdayBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,10 +121,13 @@ public class NewGroupActivity extends AppCompatActivity {
                         mCalendar.set(Calendar.YEAR, (year));
                         mCalendar.set(Calendar.MONTH, month);
                         mCalendar.set(Calendar.DAY_OF_MONTH, day);
+                        mCalendar.set(Calendar.HOUR,0);
+                        mCalendar.set(Calendar.MINUTE,0);
+                        mCalendar.set(Calendar.SECOND,0);
+                        mCalendar.set(Calendar.MILLISECOND,0);
                         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd-MM-yyyy");
                         mBirthdayBtn.setText(dateFormat.format(mCalendar.getTime()));
                     }
-
                 }, mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH));
                 datePickerDialog.show();
             }
@@ -109,7 +137,6 @@ public class NewGroupActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String elderlyName = mElderlyNameTbx.getText().toString().trim();
-
                 //Validations here
                 if (elderlyName.trim().equals("")) {
                     showSnackbar(R.string.elderlyNameCannotBeEmpty);
@@ -117,19 +144,11 @@ public class NewGroupActivity extends AppCompatActivity {
                 } else {
                     //if passed the validations, go to invite member page
                     Intent intent = new Intent(NewGroupActivity.this, InviteGroupMemberActivityForNewGp.class);
-
-                    mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
-                    //According to https://stackoverflow.com/questions/4694371/why-does-calendar-getcalendar-month-return-0
-                    //The month returned started from 0 to 11, so always 1 less than actual,e.g. Jan =0, Dec=11
-                    mMonth = mCalendar.get(Calendar.MONTH);
-                    mYear = mCalendar.get(Calendar.YEAR);
-
-                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_ELDERLY_NAME, elderlyName);
-                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_BIRTHDAY_DAY, mDay);
-                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_BIRTHDAY_MONTH, mMonth);
-                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_BIRTHDAY_YEAR, mYear);
+                    long elderBirthday = mCalendar.getTimeInMillis();
+                    //Toast.makeText(NewGroupActivity.this,elderBirthday+"",Toast.LENGTH_SHORT).show();
+                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_ELDERLY_NAME,elderlyName);
+                    intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_BIRTHDAY,elderBirthday);
                     intent.putExtra(InviteGroupMemberActivityForNewGp.EXTRA_ELDER_PHOTO,mElderlyImage);
-
                     startActivity(intent);
                     finish();
                 }

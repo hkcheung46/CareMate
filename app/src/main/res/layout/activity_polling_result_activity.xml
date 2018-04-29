@@ -25,10 +25,10 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:gravity="center_horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,8 +46,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingBottom="5dp"
-                    android:textSize="30sp"
-                    android:textColor="@color/black"/>
+                    android:textColor="@color/black"
+                    android:textSize="30sp" />
 
             </LinearLayout>
 
@@ -57,6 +57,7 @@
                 android:background="@android:color/darker_gray" />
 
             <LinearLayout
+                android:layout_weight="1"
                 android:id="@+id/ansSection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -72,17 +73,17 @@
 
                     <TextView
                         android:id="@+id/option1Lbl"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="8" />
+                        android:layout_weight="8"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/option1CountLbl"
-                        android:gravity="end"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
@@ -95,23 +96,22 @@
 
                     <TextView
                         android:id="@+id/option2Lbl"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="8" />
+                        android:layout_weight="8"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/option2CountLbl"
-                        android:textSize="25sp"
-                        android:gravity="end"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/option3View"
-                    android:textSize="25sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -119,23 +119,22 @@
 
                     <TextView
                         android:id="@+id/option3Lbl"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="8" />
+                        android:layout_weight="8"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/option3CountLbl"
-                        android:textSize="25sp"
-                        android:gravity="end"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/option4View"
-                    android:textSize="25sp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -143,17 +142,17 @@
 
                     <TextView
                         android:id="@+id/option4Lbl"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="8" />
+                        android:layout_weight="8"
+                        android:textSize="16sp" />
 
                     <TextView
-                        android:textSize="25sp"
                         android:id="@+id/option4CountLbl"
-                        android:gravity="end"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
@@ -166,21 +165,31 @@
 
                     <TextView
                         android:id="@+id/option5Lbl"
-                        android:textSize="25sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="8" />
+                        android:layout_weight="8"
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/option5CountLbl"
-                        android:textSize="25sp"
-                        android:gravity="end"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textSize="16sp" />
 
                 </LinearLayout>
 
             </LinearLayout>
+
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pieChart"
+                android:layout_weight="1"
+                android:layout_width="350dp"
+                android:layout_height="350dp">
+
+            </com.github.mikephil.charting.charts.PieChart>
+
+
 
         </LinearLayout>
 

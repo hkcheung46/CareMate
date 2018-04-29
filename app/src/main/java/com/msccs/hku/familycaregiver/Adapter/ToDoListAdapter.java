@@ -70,12 +70,20 @@ public class ToDoListAdapter extends BaseAdapter {
         final TextView taskStartDateLbl = (TextView) convertView.findViewById(R.id.taskStartDateLbl);
         final TextView taskEndDateLbl = (TextView) convertView.findViewById(R.id.taskEndDateLbl);
         final ImageView groupImageView = (ImageView) convertView.findViewById(R.id.groupImgView);
+        TextView dateTimeHyphenLbl = (TextView) convertView.findViewById(R.id.dateTimeHyphenLbl);
 
         CustomTasks currentTask = getCustomTask(position);
 
         taskNameLbl.setText(currentTask.getTaskName());
-        taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskStartDate()));
-        taskEndDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskEndDate()));
+
+        if (currentTask.getTaskEventType().equals("E")){
+            taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskStartDate()));
+            taskEndDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskEndDate()));
+        }else{
+            taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy hh:mm").format(currentTask.getTaskStartDate()));
+            dateTimeHyphenLbl.setVisibility(View.GONE);
+            taskEndDateLbl.setVisibility(View.GONE);
+        }
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         String fileName = getCustomTask(position).getBelongToGroupId();
@@ -86,15 +94,14 @@ public class ToDoListAdapter extends BaseAdapter {
         pathReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Glide.with(context).using(new FirebaseImageLoader()).load(pathReference).asBitmap().centerCrop().into(new BitmapImageViewTarget(groupImageView){
+                Glide.with(context).using(new FirebaseImageLoader()).load(pathReference).asBitmap().centerCrop()
+                        .into(new BitmapImageViewTarget(groupImageView){
                     @Override
                     protected void setResource(Bitmap resource) {
                         RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(context.getResources(), resource);
                         circularBitmapDrawable.setCircular(true);
                         groupImageView.setImageDrawable(circularBitmapDrawable);
                     }
-
-
                 });
             }
         }).addOnFailureListener(new OnFailureListener() {

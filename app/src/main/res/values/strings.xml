@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FamilyCareGiver</string>
+    <string name="app_name">CareMate</string>
     <string name="loginUserName">loginUserName</string>
     <string name="loginUserPhone">loginUserPhone</string>
     <string name="toDoList">To-Do List</string>
@@ -10,7 +10,7 @@
     <string name="drawer_open">Drawer Open</string>
     <string name="drawer_close">Drawer Close</string>
     <string name="sign_in_successful">Signed in successfully</string>
-    <string name="allTasks">All Tasks</string>
+    <string name="allTasks">All</string>
     <string name="toBeAssignedTaskes">To Be Assigned</string>
     <string name="myTask">My Tasks</string>
     <string name="noTakenTask">NO TAKEN TASK</string>
@@ -22,8 +22,7 @@
     <string name="title_activity_new_group">NewGroupActivity</string>
     <string name="new_group">Create New Group</string>
     <string name="elderlyName">Elderly Name</string>
-    <string name="BirthdayDateOpt">Birthday (Optional)</string>
-    <string name="notSetupYet">NOT SETUP YET</string>
+    <string name="BirthdayDate">Birthday</string>
     <string name="invite">Invites</string>
     <string name="title_activity_invite_member">InviteMemberActivity</string>
     <string name="displayName">User Display Name</string>
@@ -61,13 +60,13 @@
     <string name="taskInfo">Task Info</string>
     <string name="taskDescription">Task Description (Optional)</string>
     <string name="schedule">Schedule</string>
-    <string name="taskType">Task Type</string>
-    <string name="importantTask">Important Task</string>
-    <string name="casualTask">Casual Task</string>
+    <string name="importance">Task Type</string>
+    <string name="importantTask">Important</string>
+    <string name="casualTask">Casual</string>
     <string name="reminder">Reminder</string>
     <string name="allDay">All-day</string>
-    <string name="eventStart">Event Start</string>
-    <string name="eventEnd">Event End</string>
+    <string name="eventStart">Start</string>
+    <string name="eventEnd">End</string>
     <string name="taskGroup">Task Group</string>
     <string name="taskNameNotEmptyValidation">Task name is mandatory</string>
     <string name="pleaseFillAllMandatField">Please fill in all mandatory fields</string>
@@ -87,8 +86,8 @@
     <string name="isAllDayEvent">Is All Day Event?</string>
     <string name="isAllDayEventPH">PH</string>
     <string name="no">No</string>
-    <string name="markAsComplete">Mark As Complete</string>
-    <string name="hyphen"> - </string>
+    <string name="markAsComplete">MARK AS COMPLETED</string>
+    <string name="hyphen">  --- </string>
     <string name="taskOwner">Task Owner</string>
     <string name="taskStatus">Task Status</string>
     <string name="taskOwnership">Task Ownership</string>
@@ -121,7 +120,41 @@
     <string name="noVoterYet">No Voter for this option yet</string>
     <string name="noPolling">No Polling Yet</string>
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
-    <string name="gettingStart">Getting started</string>
+    <string name="gettingStart">Start</string>
+    <string name="seePollingStat">View Polling Statistics</string>
+    <string name="invitationAccepted">Invitation accepted</string>
+    <string name="invitationRejected">Invitation rejected</string>
+    <string name="discussion">Discussion</string>
+    <string name="send">Send</string>
+    <string name="householdMonitoring">HomePlus</string>
+    <string name="homePlus">HomePlus</string>
+    <string name="temperature">Temperature</string>
+    <string name="humidity">Humidity</string>
+    <string name="noReading"> - </string>
+    <string name="lastDataLogTime">Last data log time:</string>
+    <string name="connectToDevice">Connect to device</string>
+    <string name="deviceConnection">Device Connection</string>
+    <string name="connectionPin">Connection Pin</string>
+    <string name="clickToRefreshPin">Click to refresh connection pin</string>
+    <string name="connectionInstruction">Input this connection pin at your home client to connect</string>
+    <string name="channel_name">CareMate</string>
+    <string name="channel_description">CareMate</string>
+    <string name="noContact">Your contacts have not yet registered in CareMate</string>
+    <string name="attachment">Attachment</string>
+    <string name="select">SELECT FILE</string>
+    <string name="uploadAttachment">Upload Attachment</string>
+    <string name="confirmDeleteAttachment">Confirm Delete Attachment?</string>
+    <string name="newFileName">New File Name:</string>
+    <string name="duplicateName">Please use another file name</string>
+    <string name="noDescription">No Description has been provided by task creator</string>
+    <string name="viewTaskOwnerListLbl"><u>View task owner list</u></string>
+    <string name="event">Event</string>
+    <string name="task">Task</string>
+    <string name="join">JOIN</string>
+    <string name="markEventCompletion">EVENT COMPLETED</string>
+    <string name="taskEvent">Task &amp; Event</string>
+    <string name="joinedTakeUp">My to-do</string>
+    <string name="waitingForAttention">Awaiting</string>
 
     <string-array name="noOfVotingOptions">
         <item>2</item>
@@ -130,34 +163,4 @@
         <item>5</item>
     </string-array>
 
-
-    <!-- DayView -->
-    <string name="time_12am">12 am</string>
-    <string name="time_1am">1 am</string>
-    <string name="time_2am">2 am</string>
-    <string name="time_3am">3 am</string>
-    <string name="time_4am">4 am</string>
-    <string name="time_5am">5 am</string>
-    <string name="time_6am">6 am</string>
-    <string name="time_7am">7 am</string>
-    <string name="time_8am">8 am</string>
-    <string name="time_9am">9 am</string>
-    <string name="time_10am">10 am</string>
-    <string name="time_11am">11 am</string>
-    <string name="time_12pm">12 pm</string>
-    <string name="time_13pm">13 pm</string>
-    <string name="time_14pm">14 pm</string>
-    <string name="time_15pm">15 pm</string>
-    <string name="time_16pm">16 pm</string>
-    <string name="time_17pm">17 pm</string>
-    <string name="time_18pm">18 pm</string>
-    <string name="time_19pm">19 pm</string>
-    <string name="time_20pm">20 pm</string>
-    <string name="time_21pm">21 pm</string>
-    <string name="time_22pm">22 pm</string>
-    <string name="time_23pm">23 pm</string>
-    <string name="time_24pm">24 pm</string>
-    <string name="birth_day">I am going to birthday party</string>
-    <string name="current_day_date">8 October, 2016</string>
-    <string name="default_notification_channel_name" />
 </resources>

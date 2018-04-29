@@ -1,7 +1,5 @@
 package com.msccs.hku.familycaregiver.Model;
 
-import java.util.Date;
-
 /**
  * Created by HoiKit on 03/12/2017.
  */
@@ -10,45 +8,57 @@ public class CustomTasks {
 
     private String taskName;
     private String status;              //Assigned (A) or PENDING (N) or Completed (C)
-    private String taskType;             //Casual Task (c), Important Task (i), Reminder (r)
-    private Date taskStartDate;         //Task start Date (From philip: Date and time also stay here)
-    private Date taskEndDate;           //Task End Date
-    private boolean isAllDayEvent;      //Is it a whole day event?
-    private Date createDate;            //Task creation date
+    private String importance;             //Casual (c), Important Task (i)
+    private double taskStartDate;         //Task start Date (From philip: Date and time also stay here)
+    private double taskEndDate;           //Task End Date
+    private String taskEventType;           //E = event     T = task
+    //private boolean isAllDayEvent;      //Is it a whole day event?
+    private long createDate;            //Task creation date
     private String taskDescription;
     private String belongToGroupId;
+    private String creatorUid;
 
     /**
      I assume assignee should be saved in somewhere else?
      **/
 
 
-    public boolean isAllDayEvent() {
-        return isAllDayEvent;
+
+    public String getCreatorUid() {
+        return creatorUid;
     }
 
-    public CustomTasks(String taskName, String status, String taskType, Date taskStartDate, Date taskEndDate, boolean isAllDayEvent, Date createDate, String taskDescription, String belongToGroupId) {
+    public void setCreatorUid(String creatorUid) {
+        this.creatorUid = creatorUid;
+    }
+
+    public CustomTasks(String taskName, String status, String importance, double taskStartDate, double taskEndDate, long createDate, String taskDescription, String belongToGroupId, String creatorUid, String taskEventType) {
         this.taskName = taskName;
         this.status = status;
-        this.taskType = taskType;
+        this.importance = importance;
         this.taskStartDate = taskStartDate;
         this.taskEndDate = taskEndDate;
-        this.isAllDayEvent = isAllDayEvent;
         this.createDate = createDate;
         this.taskDescription = taskDescription;
         this.belongToGroupId = belongToGroupId;
-    }
+        this.creatorUid = creatorUid;
+        this.taskEventType = taskEventType;
 
-    public void setAllDayEvent(boolean allDayEvent) {
-        isAllDayEvent = allDayEvent;
     }
 
     public CustomTasks() {
     }
 
     public String getTaskName() {
-
         return taskName;
+    }
+
+    public String getTaskEventType() {
+        return taskEventType;
+    }
+
+    public void setTaskEventType(String taskEventType) {
+        this.taskEventType = taskEventType;
     }
 
     public void setTaskName(String taskName) {
@@ -63,37 +73,35 @@ public class CustomTasks {
         this.status = status;
     }
 
-    public String getTaskType() {
-        return taskType;
+    public String getImportance() {
+        return importance;
     }
 
-    public void setTaskType(String taskType) {
-        this.taskType = taskType;
+    public void setImportance(String importance) {
+        this.importance = importance;
     }
 
-    public Date getTaskStartDate() {
+    public double getTaskStartDate() {
         return taskStartDate;
     }
 
-    public void setTaskStartDate(Date taskStartDate) {
+    public void setTaskStartDate(double taskStartDate) {
         this.taskStartDate = taskStartDate;
     }
 
-
-    public Date getTaskEndDate() {
+    public double getTaskEndDate() {
         return taskEndDate;
     }
 
-    public void setTaskEndDate(Date taskEndDate) {
+    public void setTaskEndDate(double taskEndDate) {
         this.taskEndDate = taskEndDate;
     }
 
-
-    public Date getCreateDate() {
+    public long getCreateDate() {
         return createDate;
     }
 
-    public void setCreateDate(Date createDate) {
+    public void setCreateDate(long createDate) {
         this.createDate = createDate;
     }
 

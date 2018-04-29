@@ -21,11 +21,9 @@ public class Polling {
     private String option3;
     private String option4;
     private String option5;
+    private String creatorUid;
 
-    public Polling() {
-    }
-
-    public Polling(String pollingQuestion, String pollingMode, String belongToGroupId, String status, int noOfOptions, String option1, String option2, String option3, String option4, String option5) {
+    public Polling(String pollingQuestion, String pollingMode, String belongToGroupId, String status, int noOfOptions, String option1, String option2, String option3, String option4, String option5, String creatorUid) {
         this.pollingQuestion = pollingQuestion;
         this.pollingMode = pollingMode;
         this.belongToGroupId = belongToGroupId;
@@ -36,7 +34,21 @@ public class Polling {
         this.option3 = option3;
         this.option4 = option4;
         this.option5 = option5;
+        this.creatorUid = creatorUid;
     }
+
+    public String getCreatorUid() {
+
+        return creatorUid;
+    }
+
+    public void setCreatorUid(String creatorUid) {
+        this.creatorUid = creatorUid;
+    }
+
+    public Polling() {
+    }
+    
 
     public String getPollingQuestion() {
         return pollingQuestion;

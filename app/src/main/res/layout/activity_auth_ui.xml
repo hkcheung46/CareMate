@@ -1,32 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
-    android:layout_width="match_parent"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    tools:context="com.msccs.hku.familycaregiver.Activity.AuthUIActivity"
-    android:background="@drawable/senior">
+    android:layout_width="match_parent">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="center"
-        android:src="@drawable/appname"
-        android:layout_marginBottom="20dp"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/background"
+        android:scaleType="centerCrop"/>
 
-    <TextView
-        android:elevation="4dp"
-        android:background="@drawable/round_rect_orange_shape"
-        android:id="@+id/signIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
         android:gravity="center"
-        android:text="@string/gettingStart"
-        android:textSize="15sp"
-        android:padding="10dp"
-        />
+        tools:context="com.msccs.hku.familycaregiver.Activity.AuthUIActivity">
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/largeicon"
+                android:padding="20dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:fontFamily="Roboto bold"
+                android:textAlignment="center"
+                android:textSize="50sp"
+                android:text="@string/app_name"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:elevation="4dp"
+                android:background="@drawable/round_rect_orange_shape"
+                android:id="@+id/signIn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/gettingStart"
+                android:textSize="30sp"
+                android:textColor="@color/white"
+                android:layout_margin="30dp"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
+

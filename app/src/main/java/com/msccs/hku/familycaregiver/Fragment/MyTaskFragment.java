@@ -53,6 +53,7 @@ public class MyTaskFragment extends ListFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String taskId = mAdapter.getCustomTaskId(position);
+                final String groupId = mAdapter.getCustomTask(position).getBelongToGroupId();
 
                 Query taskQuery = FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(taskId);
                 taskQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -61,6 +62,7 @@ public class MyTaskFragment extends ListFragment {
                         for (DataSnapshot taskSnapshot:dataSnapshot.getChildren()){
                             Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
                             intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID,taskId);
+                            intent.putExtra(TaskDetailActivity.EXTRA_GROUP_ID,groupId);
                             startActivity(intent);
                         }
                     }
@@ -131,5 +133,42 @@ public class MyTaskFragment extends ListFragment {
 
             }
         });
+
+
+        DatabaseReference myTaskQuery2 = FirebaseDatabase.getInstance().getReference("UserTask").child(currentUserId).child("Pending");
+        myTaskQuery2.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot userTaskSnapshot:dataSnapshot.getChildren()){
+                    UserTask userTask = userTaskSnapshot.getValue(UserTask.class);
+                    Query taskRef = FirebaseDatabase.getInstance().getReference().child("tasks").orderByKey().equalTo(userTask.getTaskId());
+                    taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot1) {
+                            for (DataSnapshot taskSnapshot:dataSnapshot1.getChildren()){
+                                CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
+                                String taskId = taskSnapshot.getKey();
+                                IdTask idTask = new IdTask(taskId,task);
+                                newIdTaskList.add(idTask);
+                            }
+                            mAdapter.updateData(newIdTaskList);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
+
+
+
 }

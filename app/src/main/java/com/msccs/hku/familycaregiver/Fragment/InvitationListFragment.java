@@ -58,7 +58,7 @@ public class InvitationListFragment extends ListFragment {
                 acceptInviteImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(getActivity(), "Accept", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.invitationAccepted, Toast.LENGTH_SHORT).show();
                         final String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                         final String groupId = getItem(position).getGroupId();
                         final String groupName =model.getGroupName();
@@ -90,7 +90,7 @@ public class InvitationListFragment extends ListFragment {
                 rejectInviteImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(getActivity(), "Reject", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.invitationRejected, Toast.LENGTH_SHORT).show();
                         Log.e("Reject", getRef(position) + "");
                         //Remove the invitation record
                         getRef(position).removeValue();

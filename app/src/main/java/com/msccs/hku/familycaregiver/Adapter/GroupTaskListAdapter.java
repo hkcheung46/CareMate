@@ -11,8 +11,12 @@ import com.msccs.hku.familycaregiver.Model.CustomTasks;
 import com.msccs.hku.familycaregiver.R;
 import com.msccs.hku.familycaregiver.tempStructure.IdTask;
 
+import org.w3c.dom.Text;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+
+import static android.view.View.GONE;
 
 /**
  * Created by HoiKit on 19/12/2017.
@@ -60,13 +64,22 @@ public class GroupTaskListAdapter  extends BaseAdapter {
         TextView taskNameLbl = (TextView) convertView.findViewById(R.id.taskNameLbl);
         TextView taskStartDateLbl = (TextView) convertView.findViewById(R.id.taskStartDateLbl);
         TextView taskEndDateLbl = (TextView) convertView.findViewById(R.id.taskEndDateLbl);
+        TextView dateTimeHyphenLbl = (TextView) convertView.findViewById(R.id.dateTimeHyphenLbl);
         TextView statusLbl = (TextView) convertView.findViewById(R.id.taskStatusLbl);
 
         CustomTasks currentTask = getCustomTask(position);
 
         taskNameLbl.setText(currentTask.getTaskName());
-        taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskStartDate()));
-        taskEndDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskEndDate()));
+        if (currentTask.getTaskEventType().equals("E")){
+            taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskStartDate()));
+            taskEndDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy").format(currentTask.getTaskEndDate()));
+        }else{
+
+            taskStartDateLbl.setText(new SimpleDateFormat("MM-dd-yyyy hh:mm").format(currentTask.getTaskStartDate()));
+            dateTimeHyphenLbl.setVisibility(GONE);
+            taskEndDateLbl.setVisibility(GONE);
+        }
+
 
         switch (currentTask.getStatus()) {
             case "A":

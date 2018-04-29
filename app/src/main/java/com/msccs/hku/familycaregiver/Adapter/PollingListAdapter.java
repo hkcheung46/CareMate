@@ -88,8 +88,7 @@ public class PollingListAdapter extends BaseAdapter {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-// File not found
-
+                // File not found
                 Glide.with(context).load(R.drawable.ic_account_circle_white_24dp).asBitmap().centerCrop().into(new BitmapImageViewTarget(groupImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {

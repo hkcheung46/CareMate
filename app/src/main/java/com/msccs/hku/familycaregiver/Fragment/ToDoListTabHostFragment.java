@@ -41,8 +41,8 @@ public class ToDoListTabHostFragment extends ListFragment {
     public void onViewCreated(final View view, Bundle savedInstanceState) {
 
         mTabLayout = (TabLayout) view.findViewById(R.id.sliding_tabs);
-        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.myTask)));
-        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.toBeAssignedTaskes)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.joinedTakeUp)));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.waitingForAttention)));
         mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.allTasks)));
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 

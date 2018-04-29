@@ -11,6 +11,9 @@
     <color name="brown">#ce6204</color>
     <color name="orange200">#FFCC80</color>
     <color name="orange">#ffa11e</color>
+    <color name="light_grey">#ded7d7</color>
+    <color name="blue">#01579b</color>
+    <color name="grey_400">#F5F5F5</color>
     <!--  color -->
     <color name="colorWhite">#ffffff</color>
     <color name="colorBlack">#000000</color>

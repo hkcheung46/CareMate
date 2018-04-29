@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.msccs.hku.familycaregiver.Model.CustomFirebaseUser;
 import com.msccs.hku.familycaregiver.R;
 
@@ -111,11 +112,13 @@ public class AuthUIActivity extends AppCompatActivity {
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
                     if (!dataSnapshot.exists()){
                         //If cannot find the user data in the custom user list, it means it is first time user, have to log it's info into the user table
-                         CustomFirebaseUser newUser = new CustomFirebaseUser(FirebaseAuth.getInstance().getCurrentUser().getUid(),FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+                         CustomFirebaseUser newUser = new CustomFirebaseUser(uid,FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
                          userReference.push().setValue(newUser);
                     }
+                    FirebaseMessaging.getInstance().subscribeToTopic(uid);
                 }
                 @Override
                 public void onCancelled(DatabaseError databaseError) {

@@ -10,4 +10,25 @@
         android:layout_height="match_parent"
         android:choiceMode="multipleChoice"/>
 
+    <LinearLayout
+        android:id="@id/android:empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_group_white_48dp"
+            android:tint="@color/grey"/>
+        <TextView
+            android:paddingStart="30dp"
+            android:paddingEnd="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/noContact"
+            android:textAlignment="center"/>
+
+    </LinearLayout>
+
 </FrameLayout>

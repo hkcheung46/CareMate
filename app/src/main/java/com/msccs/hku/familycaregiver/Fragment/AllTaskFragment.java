@@ -66,6 +66,7 @@ public class AllTaskFragment extends ListFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String taskId = mAdapter.getCustomTaskId(position);
+                final String groupId = mAdapter.getCustomTask(position).getBelongToGroupId();
 
                 Query taskQuery = FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(taskId);
                 taskQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -74,6 +75,7 @@ public class AllTaskFragment extends ListFragment {
                         for (DataSnapshot taskSnapshot:dataSnapshot.getChildren()){
                             Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
                             intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID,taskId);
+                            intent.putExtra(TaskDetailActivity.EXTRA_GROUP_ID,groupId);
 
                             startActivity(intent);
                         }

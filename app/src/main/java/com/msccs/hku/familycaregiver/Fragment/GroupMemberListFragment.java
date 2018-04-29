@@ -178,7 +178,6 @@ public class GroupMemberListFragment extends ListFragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     snapshot.getRef().setValue(null);
-                    //philip: this line is just a work-around for letting the app know this task has been completed
                 }
                 tcs.setResult("1");
             }

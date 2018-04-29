@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,15 +70,16 @@ public class ToBeAssignedTaskFragment extends ListFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final String taskId = mAdapter.getCustomTaskId(position);
+                final String groupId = mAdapter.getCustomTask(position).getBelongToGroupId();
 
                 Query taskQuery = FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(taskId);
                 taskQuery.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot taskSnapshot:dataSnapshot.getChildren()){
+                        for (DataSnapshot taskSnapshot : dataSnapshot.getChildren()) {
                             Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
-                            intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID,taskId);
-
+                            intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId);
+                            intent.putExtra(TaskDetailActivity.EXTRA_GROUP_ID, groupId);
                             startActivity(intent);
                         }
                     }
@@ -97,14 +99,14 @@ public class ToBeAssignedTaskFragment extends ListFragment {
         reloadToBeAssignedTask();
     }
 
-    private void reloadToBeAssignedTask(){
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private void reloadToBeAssignedTask() {
+        final String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference inGroupRef = FirebaseDatabase.getInstance().getReference("inGroup").child(currentUserId);
         final ArrayList<IdTask> newIdTaskList = new ArrayList<IdTask>();
         inGroupRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot inGroupSnapshot:dataSnapshot.getChildren()){
+                for (DataSnapshot inGroupSnapshot : dataSnapshot.getChildren()) {
                     InGroup inGroup = inGroupSnapshot.getValue(InGroup.class);
                     String groupId = inGroup.getGroupId();
 
@@ -112,17 +114,40 @@ public class ToBeAssignedTaskFragment extends ListFragment {
                     groupTaskRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot1) {
-                            for (DataSnapshot groupTaskSnapshot:dataSnapshot1.getChildren()){
+                            for (DataSnapshot groupTaskSnapshot : dataSnapshot1.getChildren()) {
                                 GroupTask groupTask = groupTaskSnapshot.getValue(GroupTask.class);
                                 Query taskRef = FirebaseDatabase.getInstance().getReference("tasks").orderByKey().equalTo(groupTask.getTaskId());
                                 taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot2) {
-                                        for (DataSnapshot taskSnapshot:dataSnapshot2.getChildren()){
-                                            String taskId = taskSnapshot.getKey();
-                                            CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
-                                            if (task.getStatus().equals("N")){
-                                                newIdTaskList.add(new IdTask(taskId,task));
+                                        for (DataSnapshot taskSnapshot : dataSnapshot2.getChildren()) {
+                                            final String taskId = taskSnapshot.getKey();
+                                            final CustomTasks task = taskSnapshot.getValue(CustomTasks.class);
+
+                                            //Add all tasks in pending state
+                                            if (task.getTaskEventType().equals("T") && task.getStatus().equals("N")) {
+                                                newIdTaskList.add(new IdTask(taskId, task));
+                                                mAdapter.updateData(newIdTaskList);
+                                            }
+
+                                            //for event, have to check has the user indicated to join, only list those user didnt mentioned to join
+                                            if (task.getTaskEventType().equals("E") && task.getStatus().equals("N")) {
+                                                DatabaseReference taskAssigneeRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(taskId);
+                                                taskAssigneeRef.orderByChild("uid").equalTo(currentUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                                        if (!dataSnapshot.exists()) {
+                                                            //Log.d("debug","EN2 detected");
+                                                            newIdTaskList.add(new IdTask(taskId, task));
+                                                            mAdapter.updateData(newIdTaskList);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(DatabaseError databaseError) {
+
+                                                    }
+                                                });
                                             }
                                         }
                                         mAdapter.updateData(newIdTaskList);

@@ -70,8 +70,8 @@ public class GroupTaskListFragment extends ListFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 String taskId = mAdapter.getCustomTaskId(position);
                 Intent intent = new Intent(getActivity(), TaskDetailActivity.class);
-
                 intent.putExtra(TaskDetailActivity.EXTRA_TASK_ID, taskId);
+                intent.putExtra(TaskDetailActivity.EXTRA_GROUP_ID,mAdapter.getCustomTask(position).getBelongToGroupId());
                 startActivity(intent);
             }
         });
@@ -159,9 +159,9 @@ public class GroupTaskListFragment extends ListFragment {
                 if (!taskStatus1.equals(taskStatus2)) {
                     return taskStatus1Int.compareTo(taskStatus2Int);
                 } else {
-                    Date task1StartDate = object1.getCustomTask().getTaskStartDate();
-                    Date task2StartDate = object2.getCustomTask().getTaskStartDate();
-                    return task1StartDate.compareTo(task2StartDate);
+                    double task1StartDate = object1.getCustomTask().getTaskStartDate();
+                    double task2StartDate = object2.getCustomTask().getTaskStartDate();
+                    return (task1StartDate>task2StartDate?1:0);
                 }
             }
         };

@@ -24,6 +24,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -57,6 +58,9 @@ import butterknife.OnClick;
 
 public class SignedInActivity extends AppCompatActivity implements PollingTabHostFragment.onPollingTabSelectedListener,ToDoListTabHostFragment.onToDoListTabSelectedListener, GroupsTabHostFragment.onGroupsTabSelectedListener, SettingsFragment.OnSettingsFragmentResumeListener{
 
+
+    public static final String EXTRA_DEFAULT_OPEN_FRAGMENT="COM.MSCCS.HKU.FAMILYCAREGIVER.DEFAULT_OPEN_FRAGMENT";
+    public static final String DEFAULT_OPEN_GROUP_FRAGMENT="COM.MSCCS.HKU.FAMILYCAREGIVER.DEFAULT_OPEN_GROUP_FRAGMENT";
 
     private TextView mLoginUserPhoneTxtView;
     private ImageView mLoginUserPhotoImgView;
@@ -223,11 +227,22 @@ public class SignedInActivity extends AppCompatActivity implements PollingTabHos
 
         updateUserDisplayInfo();
 
-        //Default entry page will be the to do list
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(R.id.fragment_container, new ToDoListTabHostFragment(), null);
-        transaction.commit();
-
+        String extras = getIntent().getStringExtra(EXTRA_DEFAULT_OPEN_FRAGMENT);
+        if (extras!=null && extras.equals(DEFAULT_OPEN_GROUP_FRAGMENT)){
+            FragmentTransaction transaction;
+            transaction = getSupportFragmentManager().beginTransaction();
+            GroupsTabHostFragment groupTabHostFragment = new  GroupsTabHostFragment();
+            transaction.replace(R.id.fragment_container, groupTabHostFragment, null);
+            Bundle bundle = new Bundle();
+            bundle.putString("defaultTab","i");
+            groupTabHostFragment.setArguments(bundle);
+            transaction.commit();
+        }else{
+            //Default entry page will be the to do list
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.fragment_container, new ToDoListTabHostFragment(), null);
+            transaction.commit();
+        }
 
         //Ask for reading local contact permission
         if (ContextCompat.checkSelfPermission(SignedInActivity.this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {

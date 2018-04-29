@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_chat_room"
+        android:icon="@drawable/ic_chat_bubble_outline_black_24dp"
+        android:title="@string/discussion"
+        app:showAsAction="never"/>
+    <item android:id="@+id/menu_attachment"
+        android:icon="@drawable/ic_chat_bubble_outline_black_24dp"
+        android:title="@string/attachment"
+        app:showAsAction="never"/>
+</menu>

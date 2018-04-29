@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.msccs.hku.familycaregiver.Model.GroupPolling;
@@ -70,7 +71,7 @@ public class CreateNewPollingActivity extends AppCompatActivity {
         //Get the intent and retrieve content from other activity which kick start this activity
         mGroupId = getIntent().getStringExtra(EXTRA_CREATE_NEW_POLL_GROUP_ID);
         mCreateMode = getIntent().getStringExtra(EXTRA_CREATE_NEW_POLL_MODE);
-
+        
         //Toolbar setup
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -222,7 +223,9 @@ public class CreateNewPollingActivity extends AppCompatActivity {
                             break;
                     }
 
-                    Polling newPolling = new Polling(pollingQuestion,pollingMode,belongToGroupId,status,noOfOptions,option1,option2,option3,option4,option5);
+                    String creatorUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+                    Polling newPolling = new Polling(pollingQuestion,pollingMode,belongToGroupId,status,noOfOptions,option1,option2,option3,option4,option5,creatorUid);
 
 
                     String pollingId = addEntryToPolling(newPolling).getResult();

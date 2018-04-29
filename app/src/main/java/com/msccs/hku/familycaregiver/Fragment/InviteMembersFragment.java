@@ -101,7 +101,8 @@ public class InviteMembersFragment extends Fragment {
         while (cursor.moveToNext()) {
             //20171111 - if need to use locally stored name in the add user list, should also retrieve the name here
             name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("\\s+", "");
+            phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
+                    .replaceAll("\\s+", "");
             //This line is to put the phone number into the array-list,which is used for compare with the FireBase list
             s.add(new LocalContacts(name, phoneNumber));
         }

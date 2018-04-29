@@ -36,233 +36,325 @@
             android:layout_weight="1">
 
             <LinearLayout
+                android:padding="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="8dp">
+                android:orientation="vertical">
 
-                <TextView
-                    style="?android:listSeparatorTextViewStyle"
+                <android.support.v7.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:text="@string/taskInfo" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/taskNameColon"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/taskNameTbx"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="5dp"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/taskDescriptionColon"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/taskDescriptionTbx"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="5" />
-
-                </LinearLayout>
-
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:text="@string/taskTypeColon"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/taskTypeLbl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp" />
-
-
-                <TextView
-                    style="?android:listSeparatorTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/schedule" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="6"
-                        android:text="@string/isAllDayEvent"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/isAllDayEventLbl"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="4"
-                        android:gravity="end" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp"
-                    android:paddingTop="10dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:text="@string/eventStart"
-                        android:textStyle="bold"/>
-
-                    <TextView
-                        android:id="@+id/startDateTxtView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="10"
-                        android:gravity="center_horizontal|end" />
-
-                    <TextView
-                        android:id="@+id/startTimeTxtView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:gravity="end"
-                        android:text="@string/startTime" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp"
-                    android:paddingTop="10dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:text="@string/eventEnd"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/endDateTxtView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="10"
-                        android:gravity="center_horizontal|end" />
-
-                    <TextView
-                        android:id="@+id/endTimeTxtView"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="5"
-                        android:gravity="end"
-                        android:text="@string/endTime" />
-
-                </LinearLayout>
-
-                <TextView
-                    style="?android:listSeparatorTextViewStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="20dp"
-                    android:text="@string/taskOwnership" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="6"
-                        android:text="@string/taskStatus"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/taskStatusLbl"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
-                        android:layout_weight="4"
-                        android:gravity="end" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:orientation="horizontal"
-                    android:paddingEnd="5dp"
-                    android:paddingStart="5dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
-                        android:text="@string/taskOwner"
-                        android:textStyle="bold" />
+                    app:cardElevation="2dp"
+                    app:cardUseCompatPadding="true">
+                    <FrameLayout
+                        android:background="#fd0800"
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent"/>
 
                     <LinearLayout
-                        android:id="@+id/ownerListLinearLayout"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:gravity="end"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="12dp">
 
+                        <TextView
+                            style="?android:listSeparatorTextViewStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/taskInfo"
+                            android:textColor="@color/grey"
+                            android:textSize="20sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingBottom="10dp"
+                            android:paddingLeft="5dp"
+                            android:paddingRight="5dp">
+
+                            <!--
+                                                        <TextView
+                                                            android:layout_width="wrap_content"
+                                                            android:layout_height="wrap_content"
+                                                            android:text="@string/taskNameColon"
+                                                            android:textSize="20sp"
+                                                            android:textStyle="bold" />
+                            -->
+                            <TextView
+                                android:id="@+id/taskNameTbx"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="10dp"
+                                android:singleLine="true"
+                                android:textSize="40sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/colorPrimary"/>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/grey" />
+                            <!--
+                                                        <TextView
+                                                            android:layout_width="wrap_content"
+                                                            android:layout_height="wrap_content"
+                                                            android:text="@string/taskDescriptionColon"
+                                                            android:textSize="20sp"
+                                                            android:textStyle="bold" />
+                            -->
+                            <TextView
+                                android:id="@+id/taskDescriptionTbx"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:maxLines="5"
+                                android:textSize="20sp"
+                                android:layout_marginTop="10dp"
+                                android:layout_marginBottom="10dp"
+                                android:textStyle="italic"/>
+
+                            <!--
+                                                        <TextView
+                                                            android:layout_width="match_parent"
+                                                            android:layout_height="wrap_content"
+                                                            android:text="@string/taskTypeColon"
+                                                            android:textSize="20sp"
+                                                            android:textStyle="bold" />
+                            -->
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/grey" />
+
+                            <TextView
+                                android:id="@+id/taskTypeLbl"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:textSize="20sp"
+                                android:textStyle="italic"/>
+                        </LinearLayout>
 
                     </LinearLayout>
 
-                </LinearLayout>
+                </android.support.v7.widget.CardView>
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="2dp"
+                    app:cardUseCompatPadding="true">
+
+                    <FrameLayout
+                        android:background="#fff700"
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            style="?android:listSeparatorTextViewStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/schedule"
+                            android:textColor="@color/grey"
+                            android:textSize="20sp" />
+
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingEnd="5dp"
+                            android:paddingStart="5dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="6"
+                                android:text="@string/isAllDayEvent"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/isAllDayEventLbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="4"
+                                android:gravity="end"
+                                android:textSize="20sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingEnd="5dp"
+                            android:paddingStart="5dp"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:text="@string/eventStart"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/startDateTxtView"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="10"
+                                android:gravity="center_horizontal|end"
+                                android:textSize="20sp" />
+
+                            <TextView
+                                android:id="@+id/startTimeTxtView"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:gravity="end"
+                                android:text="@string/startTime"
+                                android:textSize="20sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingEnd="5dp"
+                            android:paddingStart="5dp"
+                            android:paddingTop="10dp">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:text="@string/eventEnd"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/endDateTxtView"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="10"
+                                android:gravity="center_horizontal|end"
+                                android:textSize="20sp" />
+
+                            <TextView
+                                android:id="@+id/endTimeTxtView"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:gravity="end"
+                                android:text="@string/endTime"
+                                android:textSize="20sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </android.support.v7.widget.CardView>
+
+
+                <android.support.v7.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardElevation="2dp"
+                    app:cardUseCompatPadding="true">
+
+                    <FrameLayout
+                        android:background="#bc8e86"
+                        android:layout_width="10dp"
+                        android:layout_height="match_parent"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+
+                        <TextView
+                            style="?android:listSeparatorTextViewStyle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:text="@string/taskOwnership"
+                            android:textColor="@color/grey"
+                            android:textSize="20sp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:paddingEnd="5dp"
+                            android:paddingStart="5dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="6"
+                                android:text="@string/taskStatus"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/taskStatusLbl"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="5dp"
+                                android:layout_weight="4"
+                                android:gravity="end"
+                                android:textSize="20sp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="5dp"
+                            android:orientation="horizontal"
+                            android:paddingEnd="5dp"
+                            android:paddingStart="5dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="3"
+                                android:text="@string/taskOwner"
+                                android:textSize="20sp"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:id="@+id/ownerListLinearLayout"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="7"
+                                android:gravity="end"
+                                android:orientation="vertical">
+
+
+                            </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                </android.support.v7.widget.CardView>
+
 
             </LinearLayout>
 
@@ -288,23 +380,22 @@
                 android:visibility="gone" />
 
             <LinearLayout
+                android:id="@+id/taskOwnerBtnSet"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:visibility="gone"
-                android:id="@+id/taskOwnerBtnSet">
+                android:visibility="gone">
 
                 <TextView
                     android:id="@+id/markCompleteBtn"
                     android:layout_width="0dp"
                     android:layout_height="50dp"
-                    android:text="@string/markAsComplete"
                     android:layout_weight="1"
                     android:background="@color/colorPrimary"
-                    android:textColor="@color/white"
-                    android:textStyle="bold"
                     android:gravity="center"
-                    />
+                    android:text="@string/markAsComplete"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/withdrawTaskBtn"

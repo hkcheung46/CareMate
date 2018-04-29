@@ -1,6 +1,7 @@
 package com.msccs.hku.familycaregiver.Activity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -8,6 +9,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
@@ -326,5 +330,25 @@ public class PollingDetailActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater=getMenuInflater();
+        inflater.inflate(R.menu.polling_detail_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.menu_view_poll_stat:
+                Intent intent = new Intent(PollingDetailActivity.this,PollingResultActivity.class);
+                intent.putExtra(PollingResultActivity.EXTRA_POLLING_RESULT_ACT_POLLINGID,mPollingId);
+                startActivity(intent);
+                break;
+        }
+        return true;
     }
 }
