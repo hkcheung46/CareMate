@@ -313,11 +313,31 @@ public class TaskDetailActivity extends AppCompatActivity {
                                 mEventJoinerButtonLinearLayout.setVisibility(GONE);
                             } else if (taskStatus.equals("A")) {
                                 //Assigned Task (Assigned)
-                                mTakeUpBtn.setVisibility(View.GONE);
-                                mJoinBtn.setVisibility(GONE);
-                                mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
-                                mTaskOwnerBtnLinearLayout.setVisibility(View.VISIBLE);
-                                mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                                Query taskAssigneeRef = FirebaseDatabase.getInstance().getReference("taskAssignee").child(mTaskId).orderByChild("uid").equalTo(currentUserId);
+                                taskAssigneeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (!dataSnapshot.exists()) {
+                                            mTakeUpBtn.setVisibility(View.VISIBLE);
+                                            mJoinBtn.setVisibility(GONE);
+                                            mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                            mTaskOwnerBtnLinearLayout.setVisibility(View.GONE);
+                                            mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                                        }else{
+                                            mTakeUpBtn.setVisibility(View.GONE);
+                                            mJoinBtn.setVisibility(GONE);
+                                            mViewTaskOwnerLbl.setVisibility(View.VISIBLE);
+                                            mTaskOwnerBtnLinearLayout.setVisibility(View.VISIBLE);
+                                            mEventJoinerButtonLinearLayout.setVisibility(GONE);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
                             }
                             break;
                     }
